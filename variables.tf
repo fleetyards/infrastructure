@@ -4,8 +4,8 @@ variable "hetzner_api_key" {
   sensitive   = true
 }
 
-variable "ssh_public_key" {
-  description = "The public SSH key content to be used for server access."
+variable "ssh_key_name" {
+  description = "The name of the SSH key on cloud.hetzner.de to be used for server access."
   type        = string
   sensitive   = true
 }

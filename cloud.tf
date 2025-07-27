@@ -1,6 +1,5 @@
-resource "hcloud_ssh_key" "ssh_key_for_hetzner" {
-  name       = "ssh-key-for-hetzner"
-  public_key = var.ssh_public_key
+data "hcloud_ssh_key" "by_name" {
+  name = var.ssh_key_name
 }
 
 resource "hcloud_network" "network" {
@@ -17,7 +16,7 @@ resource "hcloud_network_subnet" "network_subnet" {
 
 resource "hcloud_server" "web_server" {
   count       = var.web_servers_count
-  name        = var.web_servers_count > 1 ? "web-${count.index + 1}" : "web"
+  name        = var.web_servers_count > 1 ? "fltyrd-web-${count.index + 1}" : "fltyrd-web"
   image       = var.operating_system
   server_type = var.server_type
   location    = var.region
@@ -34,7 +33,7 @@ resource "hcloud_server" "web_server" {
   }
 
   ssh_keys = [
-    hcloud_ssh_key.ssh_key_for_hetzner.id
+    data.hcloud_ssh_key.by_name.id
   ]
 
   public_net {
@@ -45,7 +44,7 @@ resource "hcloud_server" "web_server" {
 
 resource "hcloud_server" "accessory_server" {
   count       = var.accessories_count
-  name        = var.accessories_count > 1 ? "accessories-${count.index + 1}" : "accessories"
+  name        = var.accessories_count > 1 ? "fltyrd-accessories-${count.index + 1}" : "fltyrd-accessories"
   image       = var.operating_system
   server_type = var.server_type
   location    = var.region
@@ -62,7 +61,7 @@ resource "hcloud_server" "accessory_server" {
   }
 
   ssh_keys = [
-    hcloud_ssh_key.ssh_key_for_hetzner.id
+    data.hcloud_ssh_key.by_name.id
   ]
 
   public_net {
@@ -73,7 +72,7 @@ resource "hcloud_server" "accessory_server" {
 
 resource "hcloud_load_balancer" "web_load_balancer" {
   count              = var.web_servers_count > 1 ? 1 : 0
-  name               = "web-load-balancer"
+  name               = "fltyrd-web-load-balancer"
   load_balancer_type = "lb11"
   location           = var.region
 }
