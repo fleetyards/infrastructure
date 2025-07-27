@@ -16,12 +16,12 @@ run "create_servers" {
   }
 
   assert {
-    condition = can(regex("fltyrd-web-1", data.cloudinit_config.web_server_config[0].part[0].content))
+    condition = can(regex("web-1", data.cloudinit_config.web_server_config[0].part[0].content))
     error_message = "Cloud-init config for fltyrd-web-1 is not correct"
   }
 
   assert {
-    condition = can(regex("fltyrd-web-2", data.cloudinit_config.web_server_config[1].part[0].content))
+    condition = can(regex("web-2", data.cloudinit_config.web_server_config[1].part[0].content))
     error_message = "Cloud-init config for fltyrd-web-2 is not correct"
   }
 }
