@@ -6,7 +6,7 @@ run "create_servers" {
   command = plan
 
   assert {
-    condition = hcloud_server.web_server.*.name == ["fltyrd-web-1", "fltyrd-web-2"]
+    condition = hcloud_server.web_server.*.name == ["fltyrd-default-web-1", "fltyrd-default-web-2"]
     error_message = "Server name is not correct"
   }
 
