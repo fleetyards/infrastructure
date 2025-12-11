@@ -3,7 +3,7 @@ data "hcloud_ssh_key" "by_name" {
 }
 
 resource "hcloud_network" "network" {
-  name     = "private-network"
+  name     = "fltyrd-${terraform.workspace}-private-network"
   ip_range = "10.0.0.0/16"
 }
 
@@ -16,7 +16,7 @@ resource "hcloud_network_subnet" "network_subnet" {
 
 resource "hcloud_server" "web_server" {
   count       = var.web_servers_count
-  name        = var.web_servers_count > 1 ? "fltyrd-web-${count.index + 1}" : "fltyrd-web"
+  name        = var.web_servers_count > 1 ? "fltyrd-${terraform.workspace}-web-${count.index + 1}" : "fltyrd-${terraform.workspace}-web"
   image       = var.operating_system
   server_type = var.server_type
   location    = var.region
@@ -44,7 +44,7 @@ resource "hcloud_server" "web_server" {
 
 resource "hcloud_server" "accessory_server" {
   count       = var.accessories_count
-  name        = var.accessories_count > 1 ? "fltyrd-accessories-${count.index + 1}" : "fltyrd-accessories"
+  name        = var.accessories_count > 1 ? "fltyrd-${terraform.workspace}-accessories-${count.index + 1}" : "fltyrd-${terraform.workspace}-accessories"
   image       = var.operating_system
   server_type = var.server_type
   location    = var.region
@@ -72,7 +72,7 @@ resource "hcloud_server" "accessory_server" {
 
 resource "hcloud_load_balancer" "web_load_balancer" {
   count              = var.web_servers_count > 1 ? 1 : 0
-  name               = "fltyrd-web-load-balancer"
+  name               = "fltyrd-${terraform.workspace}-web-load-balancer"
   load_balancer_type = "lb11"
   location           = var.region
 }
