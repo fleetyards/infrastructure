@@ -23,6 +23,9 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Remove Existing Terraform Variables File
+        run: rm -f terraform.tfvars
+
       - name: Init
         run: terraform init
 
