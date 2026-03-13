@@ -21,8 +21,9 @@ resource "hcloud_server" "web_server" {
   server_type = var.server_type
   location    = var.region
   labels = {
-    "ssh"  = "yes",
+    "ssh"  = "yes"
     "http" = "yes"
+    "env"  = terraform.workspace
   }
 
   user_data = data.cloudinit_config.web_server_config[count.index].rendered
@@ -51,6 +52,7 @@ resource "hcloud_server" "accessory_server" {
   labels = {
     "http" = "no"
     "ssh"  = "no"
+    "env"  = terraform.workspace
   }
 
   user_data = data.cloudinit_config.accessories_config[count.index].rendered
@@ -81,7 +83,7 @@ resource "hcloud_load_balancer_target" "load_balancer_target" {
   count            = var.web_servers_count > 1 ? 1 : 0
   type             = "label_selector"
   load_balancer_id = hcloud_load_balancer.web_load_balancer[count.index].id
-  label_selector   = "http=yes"
+  label_selector   = "http=yes,env=${terraform.workspace}"
 }
 
 resource "hcloud_load_balancer_service" "load_balancer_service" {

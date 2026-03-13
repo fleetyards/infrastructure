@@ -3,13 +3,15 @@
 #   value = "/mnt/HC_Volume_${split("HC_Volume_", hcloud_volume.data_volume.linux_device)[1]}"
 # }
 
-# output "ipv4_web_address" {
-#   value = { for s in hcloud_server.web : s.name => s.ipv4_address }
-# }
+output "web_server_ips" {
+  description = "Public IPv4 addresses of web servers (comma-separated for Kamal)."
+  value       = join(",", hcloud_server.web_server[*].ipv4_address)
+}
 
-# output "ipv4_accessories_address" {
-#   value = { for s in hcloud_server.accessories : s.name => s.ipv4_address }
-# }
+output "accessory_server_ips" {
+  description = "Public IPv4 addresses of accessory servers (comma-separated for Kamal)."
+  value       = join(",", hcloud_server.accessory_server[*].ipv4_address)
+}
 
 output "ssh_web_server_config" {
   description = "SSH configuration for web servers."
