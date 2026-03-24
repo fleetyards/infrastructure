@@ -1,5 +1,5 @@
 data "cloudinit_config" "web_server_config" {
-  count         = var.web_servers_count
+  count         = local.env.web_servers_count
   gzip          = true
   base64_encode = true
 
@@ -7,7 +7,7 @@ data "cloudinit_config" "web_server_config" {
   part {
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/cloudinit/base.yml", {
-      hostname        = var.web_servers_count > 1 ? "web-${count.index + 1}" : "web"
+      hostname        = local.env.web_servers_count > 1 ? "web-${count.index + 1}" : "web"
       username        = var.username
       github_username = var.github_username
     })
@@ -24,11 +24,11 @@ data "cloudinit_config" "web_server_config" {
 data "cloudinit_config" "accessories_config" {
   gzip          = false
   base64_encode = false
-  count         = var.accessories_count
+  count         = local.env.accessories_count
   part {
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/cloudinit/base.yml", {
-      hostname        = var.accessories_count > 1 ? "accessories-${count.index + 1}" : "accessories"
+      hostname        = local.env.accessories_count > 1 ? "accessories-${count.index + 1}" : "accessories"
       username        = var.username
       github_username = var.github_username
     })

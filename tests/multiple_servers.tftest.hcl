@@ -1,7 +1,3 @@
-variables {
-  web_servers_count = 2
-}
-
 run "create_servers" {
   command = plan
 

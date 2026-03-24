@@ -15,10 +15,10 @@ resource "hcloud_network_subnet" "network_subnet" {
 }
 
 resource "hcloud_server" "web_server" {
-  count       = var.web_servers_count
-  name        = var.web_servers_count > 1 ? "fltyrd-${terraform.workspace}-web-${count.index + 1}" : "fltyrd-${terraform.workspace}-web"
+  count       = local.env.web_servers_count
+  name        = local.env.web_servers_count > 1 ? "fltyrd-${terraform.workspace}-web-${count.index + 1}" : "fltyrd-${terraform.workspace}-web"
   image       = var.operating_system
-  server_type = var.server_type
+  server_type = local.env.server_type
   location    = var.region
   labels = {
     "ssh"  = "yes"
@@ -44,10 +44,10 @@ resource "hcloud_server" "web_server" {
 }
 
 resource "hcloud_server" "accessory_server" {
-  count       = var.accessories_count
-  name        = var.accessories_count > 1 ? "fltyrd-${terraform.workspace}-accessories-${count.index + 1}" : "fltyrd-${terraform.workspace}-accessories"
+  count       = local.env.accessories_count
+  name        = local.env.accessories_count > 1 ? "fltyrd-${terraform.workspace}-accessories-${count.index + 1}" : "fltyrd-${terraform.workspace}-accessories"
   image       = var.operating_system
-  server_type = var.server_type
+  server_type = local.env.server_type
   location    = var.region
   labels = {
     "http" = "no"
@@ -73,21 +73,21 @@ resource "hcloud_server" "accessory_server" {
 }
 
 resource "hcloud_load_balancer" "web_load_balancer" {
-  count              = var.web_servers_count > 1 ? 1 : 0
+  count              = local.env.web_servers_count > 1 ? 1 : 0
   name               = "fltyrd-${terraform.workspace}-web-load-balancer"
   load_balancer_type = "lb11"
   location           = var.region
 }
 
 resource "hcloud_load_balancer_target" "load_balancer_target" {
-  count            = var.web_servers_count > 1 ? 1 : 0
+  count            = local.env.web_servers_count > 1 ? 1 : 0
   type             = "label_selector"
   load_balancer_id = hcloud_load_balancer.web_load_balancer[count.index].id
   label_selector   = "http=yes,env=${terraform.workspace}"
 }
 
 resource "hcloud_load_balancer_service" "load_balancer_service" {
-  count            = var.web_servers_count > 1 ? 1 : 0
+  count            = local.env.web_servers_count > 1 ? 1 : 0
   load_balancer_id = hcloud_load_balancer.web_load_balancer[count.index].id
   protocol         = "http"
 
@@ -111,7 +111,7 @@ resource "hcloud_load_balancer_service" "load_balancer_service" {
 }
 
 resource "hcloud_load_balancer_network" "load_balancer_network" {
-  count            = var.web_servers_count > 1 ? 1 : 0
+  count            = local.env.web_servers_count > 1 ? 1 : 0
   load_balancer_id = hcloud_load_balancer.web_load_balancer[count.index].id
   network_id       = hcloud_network.network.id
   ip               = "10.0.1.5"
