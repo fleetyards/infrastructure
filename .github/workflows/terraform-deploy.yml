@@ -1,0 +1,65 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY_STAGE }}
+      TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
+      TF_VAR_github_username: ${{ secrets.USERNAME }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Init
+        run: terraform init
+
+      - name: Select workspace
+        run: terraform workspace select stage
+
+      - name: Plan
+        run: terraform plan -var-file=stage.tfvars -out=tfplan
+
+      - name: Apply
+        run: terraform apply tfplan
+
+  live:
+    needs: stage
+    runs-on: ubuntu-latest
+    environment: live
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY }}
+      TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
+      TF_VAR_github_username: ${{ secrets.USERNAME }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Init
+        run: terraform init
+
+      - name: Select workspace
+        run: terraform workspace select live
+
+      - name: Plan
+        run: terraform plan -out=tfplan
+
+      - name: Apply
+        run: terraform apply tfplan
