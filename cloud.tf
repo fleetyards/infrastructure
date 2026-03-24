@@ -51,7 +51,7 @@ resource "hcloud_server" "accessory_server" {
   location    = var.region
   labels = {
     "http" = "no"
-    "ssh"  = "no"
+    "ssh"  = "yes"
     "env"  = terraform.workspace
   }
 
@@ -163,8 +163,8 @@ resource "hcloud_firewall" "allow_http_https" {
 
 resource "hcloud_firewall" "block_all_inbound_traffic" {
   name = "block-inbound-traffic"
-  # Empty rule blocks all inbound traffic
+  # Empty rule blocks all inbound traffic except what other firewalls allow
   apply_to {
-    label_selector = "ssh=no"
+    label_selector = "http=no"
   }
 }
