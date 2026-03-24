@@ -32,6 +32,9 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Remove encrypted variable files
+        run: rm -f *.tfvars
+
       - name: Init
         run: terraform init
 
@@ -39,7 +42,7 @@ jobs:
         run: terraform workspace select stage
 
       - name: Plan
-        run: terraform plan -var-file=stage.tfvars -out=tfplan
+        run: terraform plan -out=tfplan
 
       - name: Apply
         run: terraform apply tfplan
@@ -60,6 +63,9 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Remove encrypted variable files
+        run: rm -f *.tfvars
 
       - name: Init
         run: terraform init
