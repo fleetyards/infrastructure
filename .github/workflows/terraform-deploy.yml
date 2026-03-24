@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deploy target"
+        required: true
+        type: choice
+        options:
+          - stage
+          - live
 
 jobs:
   stage:
+    if: github.event_name == 'push' || inputs.target == 'stage'
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -35,9 +45,8 @@ jobs:
         run: terraform apply tfplan
 
   live:
-    needs: stage
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'live'
     runs-on: ubuntu-latest
-    environment: live
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
