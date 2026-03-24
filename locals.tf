@@ -1,23 +1,5 @@
 locals {
-  env_config = {
-    default = {
-      server_type       = "cx23"
-      web_servers_count = 1
-      accessories_count = 1
-    }
-    stage = {
-      server_type       = "cx23"
-      web_servers_count = 1
-      accessories_count = 1
-    }
-    live = {
-      server_type       = "cx23"
-      web_servers_count = 1
-      accessories_count = 1
-    }
-  }
-
-  env = local.env_config[terraform.workspace]
+  env = var.env_config[terraform.workspace]
 
   web_server_ips = [
     for i in range(local.env.web_servers_count) :

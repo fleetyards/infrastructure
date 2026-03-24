@@ -27,6 +27,32 @@ variable "operating_system" {
   default     = "ubuntu-24.04"
 }
 
+variable "env_config" {
+  description = "Per-environment server configuration, keyed by workspace name."
+  type = map(object({
+    server_type       = string
+    web_servers_count = number
+    accessories_count = number
+  }))
+  default = {
+    default = {
+      server_type       = "cx23"
+      web_servers_count = 1
+      accessories_count = 1
+    }
+    stage = {
+      server_type       = "cx23"
+      web_servers_count = 1
+      accessories_count = 1
+    }
+    live = {
+      server_type       = "cx23"
+      web_servers_count = 1
+      accessories_count = 1
+    }
+  }
+}
+
 variable "username" {
   description = "The username for SSH access to the servers."
   type        = string
