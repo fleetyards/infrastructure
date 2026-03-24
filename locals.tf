@@ -2,7 +2,7 @@ locals {
   env_config = {
     default = {
       server_type       = "cx23"
-      web_servers_count = 2
+      web_servers_count = 1
       accessories_count = 1
     }
     stage = {
