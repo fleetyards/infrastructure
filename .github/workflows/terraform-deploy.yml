@@ -25,12 +25,14 @@ jobs:
         && github.event.workflow_run.event == 'push')
       || (github.event_name == 'workflow_dispatch' && inputs.target == 'stage')
     runs-on: ubuntu-latest
+    environment: Stage
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY_STAGE }}
       TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
       TF_VAR_github_username: ${{ secrets.USERNAME }}
+      TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
 
     steps:
       - name: Checkout repository
@@ -57,12 +59,14 @@ jobs:
   live:
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'live'
     runs-on: ubuntu-latest
+    environment: Live
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY }}
       TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
       TF_VAR_github_username: ${{ secrets.USERNAME }}
+      TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
 
     steps:
       - name: Checkout repository
