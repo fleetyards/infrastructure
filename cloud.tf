@@ -41,6 +41,10 @@ resource "hcloud_server" "web_server" {
     ipv4_enabled = true
     ipv6_enabled = true
   }
+
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 }
 
 resource "hcloud_server" "accessory_server" {
@@ -69,6 +73,10 @@ resource "hcloud_server" "accessory_server" {
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
+  }
+
+  lifecycle {
+    ignore_changes = [user_data]
   }
 }
 

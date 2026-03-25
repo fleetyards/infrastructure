@@ -24,7 +24,9 @@ snap:
     0: [install, btop]
 
 users:
-  - default
+  - name: root
+    ssh_import_id:
+      - gh:${github_username}
   - name: ${username}
     groups:
       - sudo
