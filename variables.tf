@@ -46,8 +46,8 @@ variable "env_config" {
       accessories_count = 1
     }
     live = {
-      server_type       = "cx23"
-      web_servers_count = 1
+      server_type       = "cx32"
+      web_servers_count = 2
       accessories_count = 1
     }
   }
