@@ -63,3 +63,8 @@ variable "github_username" {
   description = "The GitHub username of the user to be used for SSH access. This is used to fetch SSH keys from GitHub."
   type        = string
 }
+
+variable "deploy_ssh_public_key" {
+  description = "SSH public key for CI/CD deploy access (e.g. GitHub Actions)."
+  type        = string
+}

@@ -34,6 +34,8 @@ users:
     shell: /bin/bash
     ssh_import_id:
       - gh:${github_username}
+    ssh_authorized_keys:
+      - ${deploy_ssh_public_key}
     uid: 1000
 
 write_files:
