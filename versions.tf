@@ -27,5 +27,10 @@ terraform {
       source  = "hashicorp/cloudinit"
       version = ">= 2.3"
     }
+
+    dnsimple = {
+      source  = "dnsimple/dnsimple"
+      version = ">= 1.8"
+    }
   }
 }

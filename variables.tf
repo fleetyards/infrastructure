@@ -33,22 +33,30 @@ variable "env_config" {
     server_type       = string
     web_servers_count = number
     accessories_count = number
+    domains           = list(string)
+    short_domains     = list(string)
   }))
   default = {
     default = {
       server_type       = "cx23"
       web_servers_count = 1
       accessories_count = 1
+      domains           = []
+      short_domains     = []
     }
     stage = {
       server_type       = "cx23"
       web_servers_count = 1
       accessories_count = 1
+      domains           = ["fleetyards.dev"]
+      short_domains     = ["fltyrd.dev"]
     }
     live = {
       server_type       = "cx32"
       web_servers_count = 2
       accessories_count = 1
+      domains           = ["fleetyards.net"]
+      short_domains     = ["fltyrd.net"]
     }
   }
 }
@@ -68,3 +76,4 @@ variable "deploy_ssh_public_key" {
   description = "SSH public key for CI/CD deploy access (e.g. GitHub Actions)."
   type        = string
 }
+

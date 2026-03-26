@@ -33,6 +33,8 @@ jobs:
       TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
       TF_VAR_github_username: ${{ secrets.USERNAME }}
       TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
+      DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
+      DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
 
     steps:
       - name: Checkout repository
@@ -67,6 +69,8 @@ jobs:
       TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
       TF_VAR_github_username: ${{ secrets.USERNAME }}
       TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
+      DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
+      DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
 
     steps:
       - name: Checkout repository
@@ -116,6 +120,8 @@ jobs:
       TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
       TF_VAR_github_username: ${{ secrets.USERNAME }}
       TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
+      DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
+      DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
 
     steps:
       - name: Checkout repository

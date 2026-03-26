@@ -108,6 +108,7 @@ resource "hcloud_load_balancer_service" "load_balancer_service" {
     port     = 80
     interval = 10
     timeout  = 5
+    retries  = 3
 
     http {
       path         = "/up"
