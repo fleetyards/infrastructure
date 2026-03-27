@@ -20,16 +20,3 @@ resource "aws_s3_bucket_cors_configuration" "storage" {
 resource "aws_s3_bucket" "backups" {
   bucket = "fltyrd-${terraform.workspace}-backups"
 }
-
-resource "aws_s3_bucket_lifecycle_configuration" "backups" {
-  bucket = aws_s3_bucket.backups.id
-
-  rule {
-    id     = "expire-old-backups"
-    status = "Enabled"
-
-    expiration {
-      days = 30
-    }
-  }
-}
