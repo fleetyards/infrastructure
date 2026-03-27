@@ -6,8 +6,6 @@ provider "dnsimple" {}
 
 provider "aws" {
   region                      = "fsn1"
-  access_key                  = var.s3_access_key
-  secret_key                  = var.s3_secret_key
   skip_credentials_validation = true
   skip_metadata_api_check     = true
   skip_region_validation      = true

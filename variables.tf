@@ -81,15 +81,3 @@ variable "deploy_ssh_public_key" {
   type        = string
 }
 
-variable "s3_access_key" {
-  description = "Access key for Hetzner Object Storage (S3-compatible)."
-  type        = string
-  sensitive   = true
-}
-
-variable "s3_secret_key" {
-  description = "Secret key for Hetzner Object Storage (S3-compatible)."
-  type        = string
-  sensitive   = true
-}
-

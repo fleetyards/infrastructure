@@ -3,8 +3,6 @@ mock_provider "aws" {}
 
 variables {
   deploy_ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAItest test@test"
-  s3_access_key         = "test"
-  s3_secret_key         = "test"
   env_config = {
     default = {
       server_type       = "cx23"
