@@ -24,7 +24,8 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 | `variables.tf` | Input variables and per-environment config (`env_config`) |
 | `locals.tf` | Computed values (IP assignments) |
 | `versions.tf` | Terraform version constraints, backend config, provider versions |
-| `providers.tf` | Provider configuration (Hetzner, DNSimple) |
+| `providers.tf` | Provider configuration (Hetzner, DNSimple, AWS/S3) |
+| `storage.tf` | S3-compatible object storage buckets (storage + backups) |
 | `outputs.tf` | Server IPs and SSH config output |
 | `cloudinit/` | Cloud-init templates (base.yml, web.yml, accessories.yml) |
 | `tests/` | Terraform native tests (`.tftest.hcl`) |

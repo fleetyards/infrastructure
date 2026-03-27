@@ -35,6 +35,7 @@ variable "env_config" {
     accessories_count = number
     domains           = list(string)
     short_domains     = list(string)
+    cors_origins      = list(string)
   }))
   default = {
     default = {
@@ -43,6 +44,7 @@ variable "env_config" {
       accessories_count = 1
       domains           = []
       short_domains     = []
+      cors_origins      = ["http://fleetyards.test", "http://*.fleetyards.test"]
     }
     stage = {
       server_type       = "cx23"
@@ -50,6 +52,7 @@ variable "env_config" {
       accessories_count = 1
       domains           = ["fleetyards.dev"]
       short_domains     = ["fltyrd.dev"]
+      cors_origins      = ["https://fleetyards.dev", "https://*.fleetyards.dev"]
     }
     live = {
       server_type       = "cx32"
@@ -57,6 +60,7 @@ variable "env_config" {
       accessories_count = 1
       domains           = ["fleetyards.net"]
       short_domains     = ["fltyrd.net"]
+      cors_origins      = ["https://fleetyards.net", "https://*.fleetyards.net"]
     }
   }
 }
@@ -75,5 +79,17 @@ variable "github_username" {
 variable "deploy_ssh_public_key" {
   description = "SSH public key for CI/CD deploy access (e.g. GitHub Actions)."
   type        = string
+}
+
+variable "s3_access_key" {
+  description = "Access key for Hetzner Object Storage (S3-compatible)."
+  type        = string
+  sensitive   = true
+}
+
+variable "s3_secret_key" {
+  description = "Secret key for Hetzner Object Storage (S3-compatible)."
+  type        = string
+  sensitive   = true
 }
 
