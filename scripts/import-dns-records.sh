@@ -5,7 +5,7 @@ set -euo pipefail
 # Usage: ./scripts/import-dns-records.sh
 #
 # Requires:
-#   - DNSIMPLE_TOKEN and DNSIMPLE_ACCOUNT_ID env vars (or TF_VAR_ prefixed)
+#   - DNSIMPLE_TOKEN and DNSIMPLE_ACCOUNT env vars (or TF_VAR_ prefixed)
 #   - terraform workspace already selected
 #   - jq installed
 
