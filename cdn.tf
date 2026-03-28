@@ -3,7 +3,7 @@ resource "bunnynet_pullzone" "cdn" {
 
   origin {
     type                = "OriginUrl"
-    url                 = "https://${local.dns_ip}"
+    url                 = "https://${local.env.domains[0]}"
     forward_host_header = true
   }
 
