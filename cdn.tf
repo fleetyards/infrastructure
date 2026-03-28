@@ -1,0 +1,47 @@
+resource "bunnynet_pullzone" "cdn" {
+  name = "fltyrd-${terraform.workspace}-cdn"
+
+  origin {
+    type                = "OriginUrl"
+    url                 = "https://${local.dns_ip}"
+    forward_host_header = true
+  }
+
+  routing {
+    tier = "Standard"
+  }
+}
+
+resource "bunnynet_pullzone_hostname" "cdn" {
+  for_each = toset(local.env.short_domains)
+
+  pullzone    = bunnynet_pullzone.cdn.id
+  name        = "cdn.${each.value}"
+  tls_enabled = true
+  force_ssl   = true
+}
+
+resource "bunnynet_pullzone" "storage" {
+  name = "fltyrd-${terraform.workspace}-storage"
+
+  origin {
+    type                = "OriginUrl"
+    url                 = "https://fsn1.your-objectstorage.com/fltyrd-${terraform.workspace}-storage"
+    forward_host_header = false
+  }
+
+  routing {
+    tier = "Standard"
+  }
+
+  cors_enabled = true
+}
+
+resource "bunnynet_pullzone_hostname" "storage" {
+  for_each = toset(local.env.short_domains)
+
+  pullzone    = bunnynet_pullzone.storage.id
+  name        = "storage.${each.value}"
+  tls_enabled = true
+  force_ssl   = true
+}

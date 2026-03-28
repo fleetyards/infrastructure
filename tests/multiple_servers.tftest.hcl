@@ -1,8 +1,10 @@
 mock_provider "dnsimple" {}
 mock_provider "aws" {}
+mock_provider "bunnynet" {}
 
 variables {
   deploy_ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAItest test@test"
+  bunny_api_key         = "test-api-key"
   env_config = {
     default = {
       server_type       = "cx23"

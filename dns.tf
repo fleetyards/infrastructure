@@ -24,6 +24,21 @@ locals {
   ]
 
   dns_all_records = concat(local.dns_records, local.dns_short_records)
+
+  dns_cdn_records = flatten([
+    for domain in local.env.short_domains : [
+      {
+        domain     = domain
+        name       = "cdn"
+        cdn_domain = bunnynet_pullzone.cdn.cdn_domain
+      },
+      {
+        domain     = domain
+        name       = "storage"
+        cdn_domain = bunnynet_pullzone.storage.cdn_domain
+      },
+    ]
+  ])
 }
 
 resource "dnsimple_zone_record" "web" {
@@ -36,5 +51,18 @@ resource "dnsimple_zone_record" "web" {
   name      = each.value.name
   type      = "A"
   value     = local.dns_ip
+  ttl       = 600
+}
+
+resource "dnsimple_zone_record" "cdn" {
+  for_each = {
+    for record in local.dns_cdn_records :
+    "${record.domain}/${record.name}" => record
+  }
+
+  zone_name = each.value.domain
+  name      = each.value.name
+  type      = "CNAME"
+  value     = each.value.cdn_domain
   ttl       = 600
 }

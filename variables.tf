@@ -81,3 +81,9 @@ variable "deploy_ssh_public_key" {
   type        = string
 }
 
+variable "bunny_api_key" {
+  description = "The Bunny.net API key for CDN management."
+  type        = string
+  sensitive   = true
+}
+

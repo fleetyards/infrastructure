@@ -36,6 +36,7 @@ jobs:
       TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
       DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
       DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
+      TF_VAR_bunny_api_key: ${{ secrets.BUNNY_API_KEY }}
 
     steps:
       - name: Checkout repository
@@ -73,6 +74,7 @@ jobs:
       TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
       DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
       DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
+      TF_VAR_bunny_api_key: ${{ secrets.BUNNY_API_KEY }}
 
     steps:
       - name: Checkout repository
@@ -125,6 +127,7 @@ jobs:
       TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
       DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
       DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
+      TF_VAR_bunny_api_key: ${{ secrets.BUNNY_API_KEY }}
 
     steps:
       - name: Checkout repository

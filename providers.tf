@@ -15,3 +15,7 @@ provider "aws" {
     s3 = "https://fsn1.your-objectstorage.com"
   }
 }
+
+provider "bunnynet" {
+  api_key = var.bunny_api_key
+}

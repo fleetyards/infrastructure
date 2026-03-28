@@ -37,5 +37,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.0"
     }
+
+    bunnynet = {
+      source  = "BunnyWay/bunnynet"
+      version = ">= 0.4"
+    }
   }
 }
