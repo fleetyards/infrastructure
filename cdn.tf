@@ -4,7 +4,7 @@ resource "bunnynet_pullzone" "cdn" {
   origin {
     type                = "OriginUrl"
     url                 = length(local.env.domains) > 0 ? "https://${local.env.domains[0]}" : "https://${local.dns_ip}"
-    forward_host_header = true
+    forward_host_header = false
   }
 
   routing {
