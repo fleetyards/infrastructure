@@ -1,3 +1,4 @@
+mock_provider "hcloud" {}
 mock_provider "dnsimple" {}
 mock_provider "aws" {}
 mock_provider "bunnynet" {}

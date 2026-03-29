@@ -1,7 +1,7 @@
 locals {
   env = var.env_config[terraform.workspace]
 
-  deploy_ssh_public_key = data.onepassword_item.ssh[terraform.workspace == "live" ? "deploy_public_key_live" : "deploy_public_key_stage"].value
+  deploy_ssh_public_key = data.onepassword_item.deploy_key.public_key
 
   web_server_ips = [
     for i in range(local.env.web_servers_count) :

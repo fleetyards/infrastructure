@@ -1,20 +1,8 @@
+mock_provider "hcloud" {}
 mock_provider "dnsimple" {}
 mock_provider "aws" {}
 mock_provider "bunnynet" {}
 mock_provider "onepassword" {}
-
-variables {
-  env_config = {
-    default = {
-      server_type       = "cx23"
-      web_servers_count = 1
-      accessories_count = 1
-      domains           = []
-      short_domains     = []
-      cors_origins      = ["http://fleetyards.test", "http://*.fleetyards.test"]
-    }
-  }
-}
 
 run "create_servers" {
   command = plan
