@@ -45,3 +45,29 @@ resource "bunnynet_pullzone_hostname" "storage" {
   tls_enabled = true
   force_ssl   = true
 }
+
+resource "bunnynet_pullzone_edgerule" "storage_cors" {
+  enabled     = true
+  pullzone    = bunnynet_pullzone.storage.id
+  description = "Add CORS header to all responses (Active Storage keys have no file extension)"
+
+  actions = [
+    {
+      type       = "SetResponseHeader"
+      parameter1 = "Access-Control-Allow-Origin"
+      parameter2 = "*"
+      parameter3 = null
+    }
+  ]
+
+  match_type = "MatchAny"
+  triggers = [
+    {
+      type       = "Url"
+      match_type = "MatchAny"
+      patterns   = ["*"]
+      parameter1 = null
+      parameter2 = null
+    }
+  ]
+}
