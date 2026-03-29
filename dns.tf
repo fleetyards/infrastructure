@@ -30,12 +30,12 @@ locals {
       {
         domain     = domain
         name       = "cdn"
-        cdn_domain = bunnynet_pullzone.cdn.cdn_domain
+        cdn_domain = "${bunnynet_pullzone.cdn.name}.b-cdn.net"
       },
       {
         domain     = domain
         name       = "storage"
-        cdn_domain = bunnynet_pullzone.storage.cdn_domain
+        cdn_domain = "${bunnynet_pullzone.storage.name}.b-cdn.net"
       },
     ]
   ])
