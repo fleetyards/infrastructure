@@ -1,15 +1,3 @@
-variable "hetzner_api_key" {
-  description = "The Hetzner Cloud API Token"
-  type        = string
-  sensitive   = true
-}
-
-variable "ssh_key_name" {
-  description = "The name of the SSH key on cloud.hetzner.de to be used for server access."
-  type        = string
-  sensitive   = true
-}
-
 variable "region" {
   description = "The Hetzner Cloud region where resources will be provisioned. See https://docs.hetzner.com/cloud/general/locations for available locations."
   type        = string
@@ -74,16 +62,7 @@ variable "username" {
 variable "github_username" {
   description = "The GitHub username of the user to be used for SSH access. This is used to fetch SSH keys from GitHub."
   type        = string
+  default     = "mortik"
 }
 
-variable "deploy_ssh_public_key" {
-  description = "SSH public key for CI/CD deploy access (e.g. GitHub Actions)."
-  type        = string
-}
-
-variable "bunny_api_key" {
-  description = "The Bunny.net API key for CDN management."
-  type        = string
-  sensitive   = true
-}
 

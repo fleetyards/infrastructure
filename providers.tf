@@ -1,8 +1,11 @@
 provider "hcloud" {
-  token = var.hetzner_api_key
+  token = data.onepassword_item.hetzner.credential
 }
 
-provider "dnsimple" {}
+provider "dnsimple" {
+  token   = data.onepassword_item.dnsimple.credential
+  account = data.onepassword_item.dnsimple.username
+}
 
 provider "aws" {
   region                      = "fsn1"
@@ -17,5 +20,5 @@ provider "aws" {
 }
 
 provider "bunnynet" {
-  api_key = var.bunny_api_key
+  api_key = data.onepassword_item.bunny.credential
 }

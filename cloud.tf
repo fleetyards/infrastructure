@@ -1,5 +1,5 @@
 data "hcloud_ssh_key" "by_name" {
-  name = var.ssh_key_name
+  name = data.onepassword_item.ssh.username
 }
 
 resource "hcloud_network" "network" {

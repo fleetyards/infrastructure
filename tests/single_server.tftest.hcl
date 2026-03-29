@@ -1,10 +1,19 @@
 mock_provider "dnsimple" {}
 mock_provider "aws" {}
 mock_provider "bunnynet" {}
+mock_provider "onepassword" {}
 
 variables {
-  deploy_ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAItest test@test"
-  bunny_api_key         = "test-api-key"
+  env_config = {
+    default = {
+      server_type       = "cx23"
+      web_servers_count = 1
+      accessories_count = 1
+      domains           = []
+      short_domains     = []
+      cors_origins      = ["http://fleetyards.test", "http://*.fleetyards.test"]
+    }
+  }
 }
 
 run "create_servers" {

@@ -30,13 +30,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY_STAGE }}
-      TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
-      TF_VAR_github_username: ${{ secrets.USERNAME }}
-      TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
-      DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
-      DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
-      TF_VAR_bunny_api_key: ${{ secrets.BUNNY_API_KEY }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -44,9 +38,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Remove encrypted variable files
-        run: rm -f *.tfvars
 
       - name: Init
         run: terraform init
@@ -68,13 +59,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY }}
-      TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
-      TF_VAR_github_username: ${{ secrets.USERNAME }}
-      TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
-      DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
-      DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
-      TF_VAR_bunny_api_key: ${{ secrets.BUNNY_API_KEY }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -82,9 +67,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Remove encrypted variable files
-        run: rm -f *.tfvars
 
       - name: Init
         run: terraform init
@@ -121,13 +103,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_VAR_hetzner_api_key: ${{ secrets.HETZNER_API_KEY }}
-      TF_VAR_ssh_key_name: ${{ secrets.HETZNER_SSH_KEY_NAME }}
-      TF_VAR_github_username: ${{ secrets.USERNAME }}
-      TF_VAR_deploy_ssh_public_key: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
-      DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
-      DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
-      TF_VAR_bunny_api_key: ${{ secrets.BUNNY_API_KEY }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -135,9 +111,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Remove encrypted variable files
-        run: rm -f *.tfvars
 
       - name: Init
         run: terraform init

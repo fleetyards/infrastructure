@@ -24,7 +24,8 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 | `variables.tf` | Input variables and per-environment config (`env_config`) |
 | `locals.tf` | Computed values (IP assignments) |
 | `versions.tf` | Terraform version constraints, backend config, provider versions |
-| `providers.tf` | Provider configuration (Hetzner, DNSimple, AWS/S3) |
+| `providers.tf` | Provider configuration (Hetzner, DNSimple, AWS/S3, Bunny CDN) |
+| `secrets.tf` | 1Password provider and data sources for secrets |
 | `storage.tf` | S3-compatible object storage buckets (storage + backups) |
 | `cdn.tf` | Bunny CDN pull zones and custom hostnames |
 | `outputs.tf` | Server IPs and SSH config output |
@@ -65,10 +66,14 @@ terraform fmt
 
 ### Sensitive Data
 
-- `terraform.tfvars` is encrypted with **git-crypt** and committed (not gitignored)
-- `.tfstate` files are also git-crypt encrypted
-- Never commit unencrypted secrets — variables marked `sensitive = true` in variables.tf
-- CI uses `TF_VAR_*` env vars and GitHub Secrets, and removes the encrypted tfvars before init
+- Secrets are managed via **1Password** using the Terraform `onepassword` provider
+- Data sources in `secrets.tf` fetch secrets from the `fleetyards-infra` vault at plan/apply time
+- Locally: requires 1Password desktop app running or `op signin`
+- CI: uses `OP_SERVICE_ACCOUNT_TOKEN` GitHub Secret to authenticate with 1Password
+- AWS S3 backend credentials remain in GitHub Secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) since the backend initializes before providers
+- Locally, AWS S3 backend credentials are loaded from a `.env` file (gitignored)
+- `.tfstate` files are stored in the remote S3 backend
+- `.tfvars` files are gitignored — no secrets are committed to the repository
 
 ### Conventions
 

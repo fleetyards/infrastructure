@@ -10,7 +10,7 @@ data "cloudinit_config" "web_server_config" {
       hostname              = local.env.web_servers_count > 1 ? "web-${count.index + 1}" : "web"
       username              = var.username
       github_username       = var.github_username
-      deploy_ssh_public_key = var.deploy_ssh_public_key
+      deploy_ssh_public_key = local.deploy_ssh_public_key
     })
   }
 
@@ -32,7 +32,7 @@ data "cloudinit_config" "accessories_config" {
       hostname              = local.env.accessories_count > 1 ? "accessories-${count.index + 1}" : "accessories"
       username              = var.username
       github_username       = var.github_username
-      deploy_ssh_public_key = var.deploy_ssh_public_key
+      deploy_ssh_public_key = local.deploy_ssh_public_key
     })
   }
 

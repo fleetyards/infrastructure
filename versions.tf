@@ -42,5 +42,10 @@ terraform {
       source  = "BunnyWay/bunnynet"
       version = ">= 0.4"
     }
+
+    onepassword = {
+      source  = "1Password/onepassword"
+      version = ">= 2.1"
+    }
   }
 }
