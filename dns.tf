@@ -85,41 +85,59 @@ resource "hcloud_zone_rrset" "cdn" {
   ]
 }
 
-# --- Email records (fleetyards.net only) ---
+# --- Email records (per-workspace) ---
+
+locals {
+  email_config = {
+    live = {
+      mx_records = [{ value = "1 smtp.google.com" }]
+      cnames = {
+        email = "eu.mailgun.org"
+        pm    = "pm.mtasv.net"
+      }
+      postmark_dkim_selector = "20220207145011pm"
+      postmark_dkim_key      = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBZ1omiKMon6mNlzGAZDkoCMC4i/ghbe9Mg89Igkkesy85xNGvj/ff4s5AcahQAxsdAjZ+Oo+cXa0UlECQ/5ZsqQRKka5/UJRpoMypfPPitIcv7UzBYfnVcNNyFel3MZItAPxPM0s4sLFoQ1DFQiIlMhbnruREIMpCrSs4myqiUwIDAQAB"
+      txt_records = [
+        "\"google-site-verification=-QZHCDKtqEnhuNP20p87uH86OVAQtwbSOVSw8FpDySk\"",
+        "\"google-site-verification=UmogpbAAHEdM2L5oDtJ2LWlhNjjNwowlK8JU19kj_w8\"",
+      ]
+    }
+    stage = {
+      mx_records = null
+      cnames = {
+        pm-bounces = "pm.mtasv.net"
+      }
+      postmark_dkim_selector = "20260331142839pm"
+      postmark_dkim_key      = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYP3C+wLr59oHiaJ8rIKJsVhdlLQhNrq3gNfcbLQf4c6rXQgVTQlbcCGNYMknh6f6rR2tzbABf3HMbfCy0WRMRTCmyJWSADZsUyO2v8U3C1iaEwunYvuH1BOnW+URsTlbCJKLgCAf1DpuHHJqxZ52wUQuCsz1F05WdIueg7Hb8UwIDAQAB"
+      txt_records = null
+    }
+  }
+
+  current_email = lookup(local.email_config, terraform.workspace, local.email_config["stage"])
+}
 
 resource "hcloud_zone_rrset" "mx" {
-  for_each = var.manage_dns ? toset(local.env.domains) : toset([])
+  for_each = var.manage_dns && local.current_email.mx_records != null ? toset(local.env.domains) : toset([])
 
-  zone = hcloud_zone.zone[each.value].name
-  type = "MX"
-  name = "@"
-  ttl  = 3600
-  records = [
-    { value = "1 smtp.google.com" }
-  ]
+  zone    = hcloud_zone.zone[each.value].name
+  type    = "MX"
+  name    = "@"
+  ttl     = 3600
+  records = coalesce(local.current_email.mx_records, [{ value = "unused" }])
 }
 
 resource "hcloud_zone_rrset" "email_cname" {
-  for_each = var.manage_dns ? toset(local.env.domains) : toset([])
+  for_each = var.manage_dns ? {
+    for name, target in local.current_email.cnames :
+    name => { domain = local.env.domains[0], name = name, target = target }
+  } : {}
 
-  zone = hcloud_zone.zone[each.value].name
+  zone = hcloud_zone.zone[each.value.domain].name
   type = "CNAME"
-  name = "email"
-  ttl  = 3600
-  records = [
-    { value = "eu.mailgun.org" }
-  ]
-}
-
-resource "hcloud_zone_rrset" "pm_cname" {
-  for_each = var.manage_dns ? toset(local.env.domains) : toset([])
-
-  zone = hcloud_zone.zone[each.value].name
-  type = "CNAME"
-  name = "pm"
+  name = each.value.name
   ttl  = 600
   records = [
-    { value = "pm.mtasv.net" }
+    { value = each.value.target }
   ]
 }
 
@@ -130,24 +148,21 @@ resource "hcloud_zone_rrset" "postmark_dkim" {
 
   zone = hcloud_zone.zone[each.value].name
   type = "TXT"
-  name = "20220207145011pm._domainkey"
+  name = "${local.current_email.postmark_dkim_selector}._domainkey"
   ttl  = 600
   records = [
-    { value = "\"k=rsa;p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBZ1omiKMon6mNlzGAZDkoCMC4i/ghbe9Mg89Igkkesy85xNGvj/ff4s5AcahQAxsdAjZ+Oo+cXa0UlECQ/5ZsqQRKka5/UJRpoMypfPPitIcv7UzBYfnVcNNyFel3MZItAPxPM0s4sLFoQ1DFQiIlMhbnruREIMpCrSs4myqiUwIDAQAB\"" }
+    { value = "\"k=rsa;p=${local.current_email.postmark_dkim_key}\"" }
   ]
 }
 
 # --- TXT records ---
 
-resource "hcloud_zone_rrset" "google_site_verification" {
-  for_each = var.manage_dns ? toset(local.env.domains) : toset([])
+resource "hcloud_zone_rrset" "txt" {
+  for_each = var.manage_dns && local.current_email.txt_records != null ? toset(local.env.domains) : toset([])
 
-  zone = hcloud_zone.zone[each.value].name
-  type = "TXT"
-  name = "@"
-  ttl  = 600
-  records = [
-    { value = "\"google-site-verification=-QZHCDKtqEnhuNP20p87uH86OVAQtwbSOVSw8FpDySk\"" },
-    { value = "\"google-site-verification=UmogpbAAHEdM2L5oDtJ2LWlhNjjNwowlK8JU19kj_w8\"" },
-  ]
+  zone    = hcloud_zone.zone[each.value].name
+  type    = "TXT"
+  name    = "@"
+  ttl     = 600
+  records = [for v in coalesce(local.current_email.txt_records, ["unused"]) : { value = v }]
 }

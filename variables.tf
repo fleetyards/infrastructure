@@ -62,7 +62,7 @@ variable "manage_dns" {
 variable "enable_ssl" {
   description = "Whether to enable SSL on the load balancer. Requires DNS to be pointing at the LB first (managed certs use HTTP-01 validation)."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "maintenance" {
