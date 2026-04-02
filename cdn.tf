@@ -13,7 +13,7 @@ resource "bunnynet_pullzone" "cdn" {
 }
 
 resource "bunnynet_pullzone_hostname" "cdn" {
-  for_each = toset(local.env.short_domains)
+  for_each = var.manage_dns ? toset(local.env.short_domains) : toset([])
 
   pullzone    = bunnynet_pullzone.cdn.id
   name        = "cdn.${each.value}"
@@ -38,7 +38,7 @@ resource "bunnynet_pullzone" "storage" {
 }
 
 resource "bunnynet_pullzone_hostname" "storage" {
-  for_each = toset(local.env.short_domains)
+  for_each = var.manage_dns ? toset(local.env.short_domains) : toset([])
 
   pullzone    = bunnynet_pullzone.storage.id
   name        = "storage.${each.value}"

@@ -43,7 +43,7 @@ variable "env_config" {
       cors_origins      = ["https://fleetyards.dev", "https://*.fleetyards.dev"]
     }
     live = {
-      server_type       = "cx32"
+      server_type       = "cx33"
       web_servers_count = 2
       accessories_count = 1
       domains           = ["fleetyards.net"]

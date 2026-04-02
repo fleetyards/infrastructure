@@ -123,7 +123,7 @@ resource "hcloud_load_balancer_network" "load_balancer_network" {
   count            = local.env.web_servers_count > 1 ? 1 : 0
   load_balancer_id = hcloud_load_balancer.web_load_balancer[count.index].id
   network_id       = hcloud_network.network.id
-  ip               = "10.0.1.5"
+  ip               = "10.0.0.254"
 }
 
 resource "hcloud_firewall" "block_all_except_ssh" {
