@@ -32,12 +32,12 @@ locals {
       {
         domain     = domain
         name       = "cdn"
-        cdn_domain = "${bunnynet_pullzone.cdn.name}.b-cdn.net"
+        cdn_domain = "${bunnynet_pullzone.cdn.name}.b-cdn.net."
       },
       {
         domain     = domain
         name       = "storage"
-        cdn_domain = "${bunnynet_pullzone.storage.name}.b-cdn.net"
+        cdn_domain = "${bunnynet_pullzone.storage.name}.b-cdn.net."
       },
     ]
   ])
@@ -95,7 +95,7 @@ resource "hcloud_zone_rrset" "cdn_legacy" {
   name = "cdn"
   ttl  = 600
   records = [
-    { value = "fleetyards.fra1.cdn.digitaloceanspaces.com" }
+    { value = "fleetyards.fra1.cdn.digitaloceanspaces.com." }
   ]
 }
 
@@ -104,10 +104,10 @@ resource "hcloud_zone_rrset" "cdn_legacy" {
 locals {
   email_config = {
     live = {
-      mx_records = [{ value = "1 smtp.google.com" }]
+      mx_records = [{ value = "1 smtp.google.com." }]
       cnames = {
-        email = "eu.mailgun.org"
-        pm    = "pm.mtasv.net"
+        email = "eu.mailgun.org."
+        pm    = "pm.mtasv.net."
       }
       postmark_dkim_selector = "20220207145011pm"
       postmark_dkim_key      = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBZ1omiKMon6mNlzGAZDkoCMC4i/ghbe9Mg89Igkkesy85xNGvj/ff4s5AcahQAxsdAjZ+Oo+cXa0UlECQ/5ZsqQRKka5/UJRpoMypfPPitIcv7UzBYfnVcNNyFel3MZItAPxPM0s4sLFoQ1DFQiIlMhbnruREIMpCrSs4myqiUwIDAQAB"
@@ -119,7 +119,7 @@ locals {
     stage = {
       mx_records = null
       cnames = {
-        pm-bounces = "pm.mtasv.net"
+        pm-bounces = "pm.mtasv.net."
       }
       postmark_dkim_selector = "20260331142839pm"
       postmark_dkim_key      = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYP3C+wLr59oHiaJ8rIKJsVhdlLQhNrq3gNfcbLQf4c6rXQgVTQlbcCGNYMknh6f6rR2tzbABf3HMbfCy0WRMRTCmyJWSADZsUyO2v8U3C1iaEwunYvuH1BOnW+URsTlbCJKLgCAf1DpuHHJqxZ52wUQuCsz1F05WdIueg7Hb8UwIDAQAB"
