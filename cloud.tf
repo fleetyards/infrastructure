@@ -94,14 +94,18 @@ resource "hcloud_load_balancer_target" "load_balancer_target" {
   label_selector   = "http=yes,env=${terraform.workspace}"
 }
 
-resource "hcloud_managed_certificate" "web" {
-  count = local.env.web_servers_count > 1 && var.enable_ssl ? 1 : 0
-  name  = "fltyrd-${terraform.workspace}-web-cert"
+resource "hcloud_managed_certificate" "web_domain" {
+  for_each = local.env.web_servers_count > 1 && var.enable_ssl ? toset(local.env.domains) : toset([])
+  name     = "fltyrd-${terraform.workspace}-${replace(each.value, ".", "-")}-cert"
 
-  domain_names = concat(
-    [for sub in local.dns_subdomains : sub == "" ? local.env.domains[0] : "${sub}.${local.env.domains[0]}"],
-    local.env.short_domains
-  )
+  domain_names = [for sub in local.dns_subdomains : sub == "" ? each.value : "${sub}.${each.value}"]
+}
+
+resource "hcloud_managed_certificate" "web_short_domain" {
+  for_each = local.env.web_servers_count > 1 && var.enable_ssl ? toset(local.env.short_domains) : toset([])
+  name     = "fltyrd-${terraform.workspace}-${replace(each.value, ".", "-")}-cert"
+
+  domain_names = [each.value]
 }
 
 resource "hcloud_load_balancer_service" "load_balancer_service_https" {
@@ -113,8 +117,11 @@ resource "hcloud_load_balancer_service" "load_balancer_service_https" {
 
   http {
     sticky_sessions = true
-    certificates    = [hcloud_managed_certificate.web[0].id]
-    redirect_http   = true
+    certificates = concat(
+      [for cert in hcloud_managed_certificate.web_domain : cert.id],
+      [for cert in hcloud_managed_certificate.web_short_domain : cert.id]
+    )
+    redirect_http = true
   }
 
   health_check {

@@ -20,7 +20,7 @@ terraform {
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = ">= 1.50"
+      version = ">= 1.60"
     }
 
     cloudinit = {
