@@ -141,7 +141,7 @@ resource "hcloud_zone_rrset" "mx" {
 }
 
 resource "hcloud_zone_rrset" "email_cname" {
-  for_each = var.manage_dns ? {
+  for_each = var.manage_dns && length(local.env.domains) > 0 ? {
     for name, target in local.current_email.cnames :
     name => { domain = local.env.domains[0], name = name, target = target }
   } : {}
