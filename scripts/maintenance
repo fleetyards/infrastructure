@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WORKSPACE="${WORKSPACE:-live}"
+
+usage() {
+  echo "Usage: scripts/maintenance <on|off>"
+  echo ""
+  echo "  on   - Relax LB health checks for maintenance mode"
+  echo "  off  - Restore strict LB health checks"
+  echo ""
+  echo "Environment variables:"
+  echo "  WORKSPACE  - Terraform workspace (default: live)"
+  exit 1
+}
+
+ensure_workspace() {
+  local current
+  current=$(terraform workspace show)
+  if [ "$current" != "$WORKSPACE" ]; then
+    echo "==> Switching to workspace '$WORKSPACE'..."
+    terraform workspace select "$WORKSPACE"
+  fi
+}
+
+maintenance_on() {
+  echo "==> Enabling maintenance mode on '$WORKSPACE'..."
+  ensure_workspace
+  terraform apply -var="maintenance=true"
+  echo ""
+  echo "LB health checks relaxed. You can now enable maintenance in Kamal:"
+  echo "  .kamal/maintenance on"
+}
+
+maintenance_off() {
+  echo "==> Disabling maintenance mode on '$WORKSPACE'..."
+  ensure_workspace
+  terraform apply -var="maintenance=false"
+  echo ""
+  echo "LB health checks restored."
+}
+
+case "${1:-}" in
+  on)  maintenance_on ;;
+  off) maintenance_off ;;
+  *)   usage ;;
+esac
