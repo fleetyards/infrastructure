@@ -18,6 +18,7 @@ packages:
   - docker.io
   - git
   - snapd
+  - unattended-upgrades
 
 snap:
   commands:
@@ -56,3 +57,4 @@ write_files:
 runcmd:
   - netplan apply
   - systemctl restart ssh
+  - dpkg-reconfigure -plow unattended-upgrades
