@@ -85,6 +85,20 @@ resource "hcloud_zone_rrset" "cdn" {
   ]
 }
 
+# --- Legacy CDN CNAME (DigitalOcean Spaces, fleetyards.net only) ---
+
+resource "hcloud_zone_rrset" "cdn_legacy" {
+  for_each = var.manage_dns && terraform.workspace == "live" ? toset(local.env.domains) : toset([])
+
+  zone = hcloud_zone.zone[each.value].name
+  type = "CNAME"
+  name = "cdn"
+  ttl  = 600
+  records = [
+    { value = "fleetyards.fra1.cdn.digitaloceanspaces.com" }
+  ]
+}
+
 # --- Email records (per-workspace) ---
 
 locals {
