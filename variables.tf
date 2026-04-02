@@ -59,6 +59,18 @@ variable "manage_dns" {
   default     = true
 }
 
+variable "enable_ssl" {
+  description = "Whether to enable SSL on the load balancer. Requires DNS to be pointing at the LB first (managed certs use HTTP-01 validation)."
+  type        = bool
+  default     = false
+}
+
+variable "maintenance" {
+  description = "Enable maintenance mode. Relaxes LB health checks to accept 503 responses so kamal-proxy can serve a maintenance page."
+  type        = bool
+  default     = false
+}
+
 variable "username" {
   description = "The username for SSH access to the servers."
   type        = string

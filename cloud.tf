@@ -94,9 +94,48 @@ resource "hcloud_load_balancer_target" "load_balancer_target" {
   label_selector   = "http=yes,env=${terraform.workspace}"
 }
 
-resource "hcloud_load_balancer_service" "load_balancer_service" {
-  count            = local.env.web_servers_count > 1 ? 1 : 0
-  load_balancer_id = hcloud_load_balancer.web_load_balancer[count.index].id
+resource "hcloud_managed_certificate" "web" {
+  count = local.env.web_servers_count > 1 && var.enable_ssl ? 1 : 0
+  name  = "fltyrd-${terraform.workspace}-web-cert"
+
+  domain_names = concat(
+    [for sub in local.dns_subdomains : sub == "" ? local.env.domains[0] : "${sub}.${local.env.domains[0]}"],
+    local.env.short_domains
+  )
+}
+
+resource "hcloud_load_balancer_service" "load_balancer_service_https" {
+  count            = local.env.web_servers_count > 1 && var.enable_ssl ? 1 : 0
+  load_balancer_id = hcloud_load_balancer.web_load_balancer[0].id
+  protocol         = "https"
+  listen_port      = 443
+  destination_port = 80
+
+  http {
+    sticky_sessions = true
+    certificates    = [hcloud_managed_certificate.web[0].id]
+    redirect_http   = true
+  }
+
+  health_check {
+    protocol = "http"
+    port     = 80
+    interval = 10
+    timeout  = 5
+    retries  = 3
+
+    http {
+      path         = "/up"
+      response     = var.maintenance ? "" : "OK"
+      tls          = false
+      status_codes = var.maintenance ? ["200", "503"] : ["200"]
+    }
+  }
+}
+
+resource "hcloud_load_balancer_service" "load_balancer_service_http" {
+  count            = local.env.web_servers_count > 1 && !var.enable_ssl ? 1 : 0
+  load_balancer_id = hcloud_load_balancer.web_load_balancer[0].id
   protocol         = "http"
 
   http {
@@ -112,9 +151,9 @@ resource "hcloud_load_balancer_service" "load_balancer_service" {
 
     http {
       path         = "/up"
-      response     = "OK"
+      response     = var.maintenance ? "" : "OK"
       tls          = false
-      status_codes = ["200"]
+      status_codes = var.maintenance ? ["200", "503"] : ["200"]
     }
   }
 }
