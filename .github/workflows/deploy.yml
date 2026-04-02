@@ -119,7 +119,7 @@ jobs:
         run: terraform workspace select live
 
       - name: Download plan artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: live-tfplan
 
