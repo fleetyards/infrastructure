@@ -126,7 +126,7 @@ resource "hcloud_load_balancer_service" "load_balancer_service_https" {
 
     http {
       path         = "/up"
-      response     = var.maintenance ? "" : "OK"
+      response     = ""
       tls          = false
       status_codes = var.maintenance ? ["200", "503"] : ["200"]
     }
@@ -151,7 +151,7 @@ resource "hcloud_load_balancer_service" "load_balancer_service_http" {
 
     http {
       path         = "/up"
-      response     = var.maintenance ? "" : "OK"
+      response     = ""
       tls          = false
       status_codes = var.maintenance ? ["200", "503"] : ["200"]
     }
