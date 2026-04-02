@@ -28,13 +28,15 @@ Migrate FleetYards production from the legacy single Hetzner dedicated server (A
 
 ### 0.2 Provision and verify Terraform live infrastructure
 ```bash
+source .env
 terraform workspace select live
-terraform plan -var-file=terraform.tfvars
-terraform apply -var-file=terraform.tfvars
+terraform plan -var="manage_dns=false"
+terraform apply -var="manage_dns=false"
 ```
 - [ ] All servers running (web-1, web-2, accessories)
 - [ ] SSH access works to all servers
 - [ ] Private network connectivity between web and accessory servers confirmed
+- [ ] DNS still points to old server (manage_dns=false skips DNS records)
 - [ ] Load balancer healthy
 
 ### 0.3 Set up data services on accessory server
@@ -107,8 +109,9 @@ Since there is no legacy stage system, validate the new infrastructure before th
 
 9. Update DNS to point to new load balancer / web server IPs:
    ```bash
+   source .env
    terraform workspace select live
-   terraform apply -var-file=terraform.tfvars
+   terraform apply
    ```
 
 10. Verify:

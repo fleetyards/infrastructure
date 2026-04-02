@@ -53,6 +53,12 @@ variable "env_config" {
   }
 }
 
+variable "manage_dns" {
+  description = "Whether to create DNS records. Set to false when provisioning infrastructure ahead of a migration to avoid pointing DNS at servers that aren't ready yet."
+  type        = bool
+  default     = true
+}
+
 variable "username" {
   description = "The username for SSH access to the servers."
   type        = string

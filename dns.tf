@@ -1,11 +1,11 @@
 locals {
   dns_subdomains = ["", "www", "api", "admin", "docs"]
 
-  dns_ip = (
+  dns_ip = var.manage_dns ? (
     local.env.web_servers_count > 1
     ? hcloud_load_balancer.web_load_balancer[0].ipv4
     : hcloud_server.web_server[0].ipv4_address
-  )
+  ) : null
 
   dns_records = flatten([
     for domain in local.env.domains : [
@@ -42,10 +42,10 @@ locals {
 }
 
 resource "dnsimple_zone_record" "web" {
-  for_each = {
+  for_each = var.manage_dns ? {
     for record in local.dns_all_records :
     "${record.domain}/${record.name}" => record
-  }
+  } : {}
 
   zone_name = each.value.domain
   name      = each.value.name
@@ -55,10 +55,10 @@ resource "dnsimple_zone_record" "web" {
 }
 
 resource "dnsimple_zone_record" "cdn" {
-  for_each = {
+  for_each = var.manage_dns ? {
     for record in local.dns_cdn_records :
     "${record.domain}/${record.name}" => record
-  }
+  } : {}
 
   zone_name = each.value.domain
   name      = each.value.name
