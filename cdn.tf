@@ -46,6 +46,38 @@ resource "bunnynet_pullzone_hostname" "storage" {
   force_ssl   = true
 }
 
+resource "bunnynet_pullzone_edgerule" "cdn_vite_assets_cache" {
+  enabled     = true
+  pullzone    = bunnynet_pullzone.cdn.id
+  description = "Immutable cache for Vite hashed assets"
+
+  actions = [
+    {
+      type       = "OverrideCacheTime"
+      parameter1 = "31536000"
+      parameter2 = null
+      parameter3 = null
+    },
+    {
+      type       = "SetResponseHeader"
+      parameter1 = "Cache-Control"
+      parameter2 = "public, max-age=31536000, immutable"
+      parameter3 = null
+    }
+  ]
+
+  match_type = "MatchAny"
+  triggers = [
+    {
+      type       = "Url"
+      match_type = "MatchAny"
+      patterns   = ["*/vite/assets/*"]
+      parameter1 = null
+      parameter2 = null
+    }
+  ]
+}
+
 resource "bunnynet_pullzone_edgerule" "storage_cors" {
   enabled     = true
   pullzone    = bunnynet_pullzone.storage.id
