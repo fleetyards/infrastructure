@@ -28,3 +28,8 @@ data "onepassword_item" "bunny" {
   vault = data.onepassword_vault.infra.uuid
   title = "BunnyCDN"
 }
+
+data "onepassword_item" "appsignal" {
+  vault = data.onepassword_vault.infra.uuid
+  title = "APPSIGNAL"
+}
