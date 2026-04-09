@@ -41,7 +41,7 @@ data "cloudinit_config" "accessories_config" {
     content = templatefile("${path.module}/cloudinit/accessories.yml", {
       appsignal_push_api_key = data.onepassword_item.appsignal.credential
       appsignal_app_name     = "Fleetyards"
-      appsignal_app_env      = terraform.workspace
+      appsignal_app_env      = terraform.workspace == "live" ? "production" : "staging"
     })
     merge_type = "list(append)+dict(recurse_array)+str()"
   }
