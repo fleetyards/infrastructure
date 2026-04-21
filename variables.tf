@@ -83,4 +83,10 @@ variable "github_username" {
   default     = "mortik"
 }
 
+variable "cdn_use_storage_origin" {
+  description = "Use Bunny Storage zone as CDN origin instead of the Rails app."
+  type        = bool
+  default     = true
+}
+
 

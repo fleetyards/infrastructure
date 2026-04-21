@@ -33,3 +33,24 @@ data "onepassword_item" "appsignal" {
   vault = data.onepassword_vault.infra.uuid
   title = "APPSIGNAL"
 }
+
+resource "onepassword_item" "bunny_storage" {
+  vault    = data.onepassword_vault.infra.uuid
+  title    = "BUNNY_STORAGE_${upper(terraform.workspace)}"
+  category = "password"
+  password = bunnynet_storage_zone.assets.password
+
+  section {
+    label = "config"
+
+    field {
+      label = "zone_name"
+      value = bunnynet_storage_zone.assets.name
+    }
+
+    field {
+      label = "endpoint"
+      value = "https://storage.bunnycdn.com"
+    }
+  }
+}
