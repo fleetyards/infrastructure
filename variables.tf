@@ -36,8 +36,8 @@ variable "env_config" {
     }
     stage = {
       server_type       = "cx23"
-      web_servers_count = 1
-      accessories_count = 1
+      web_servers_count = 0
+      accessories_count = 0
       domains           = ["fleetyards.dev"]
       short_domains     = ["fltyrd.dev"]
       cors_origins      = ["https://fleetyards.dev", "https://*.fleetyards.dev"]

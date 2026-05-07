@@ -1,7 +1,7 @@
 locals {
   dns_subdomains = ["", "www", "api", "admin", "docs"]
 
-  dns_ip = var.manage_dns ? (
+  dns_ip = var.manage_dns && local.env.web_servers_count > 0 ? (
     local.env.web_servers_count > 1
     ? hcloud_load_balancer.web_load_balancer[0].ipv4
     : hcloud_server.web_server[0].ipv4_address
@@ -54,7 +54,7 @@ resource "hcloud_zone" "zone" {
 # --- A records (web servers / load balancer) ---
 
 resource "hcloud_zone_rrset" "web" {
-  for_each = var.manage_dns ? {
+  for_each = local.dns_ip != null ? {
     for record in local.dns_all_records :
     "${record.domain}/${record.name}" => record
   } : {}
@@ -66,6 +66,39 @@ resource "hcloud_zone_rrset" "web" {
   records = [
     { value = local.dns_ip }
   ]
+}
+
+# --- Offline placeholder records (when web_servers_count == 0) ---
+# Served by GitHub Pages from this repo's placeholder/ folder.
+# IPs are GitHub's documented Pages anycast addresses (https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).
+
+locals {
+  github_pages_ips = [
+    "185.199.108.153",
+    "185.199.109.153",
+    "185.199.110.153",
+    "185.199.111.153",
+  ]
+}
+
+resource "hcloud_zone_rrset" "placeholder_apex" {
+  for_each = var.manage_dns && local.env.web_servers_count == 0 ? toset(local.env.domains) : toset([])
+
+  zone    = hcloud_zone.zone[each.value].name
+  type    = "A"
+  name    = "@"
+  ttl     = 600
+  records = [for ip in local.github_pages_ips : { value = ip }]
+}
+
+resource "hcloud_zone_rrset" "placeholder_www" {
+  for_each = var.manage_dns && local.env.web_servers_count == 0 ? toset(local.env.domains) : toset([])
+
+  zone    = hcloud_zone.zone[each.value].name
+  type    = "CNAME"
+  name    = "www"
+  ttl     = 600
+  records = [{ value = "fleetyards.github.io." }]
 }
 
 # --- CDN CNAME records ---
@@ -123,7 +156,7 @@ locals {
       }
       postmark_dkim_selector = "20260331142839pm"
       postmark_dkim_key      = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYP3C+wLr59oHiaJ8rIKJsVhdlLQhNrq3gNfcbLQf4c6rXQgVTQlbcCGNYMknh6f6rR2tzbABf3HMbfCy0WRMRTCmyJWSADZsUyO2v8U3C1iaEwunYvuH1BOnW+URsTlbCJKLgCAf1DpuHHJqxZ52wUQuCsz1F05WdIueg7Hb8UwIDAQAB"
-      txt_records = null
+      txt_records            = null
     }
   }
 
