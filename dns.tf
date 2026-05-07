@@ -54,7 +54,7 @@ resource "hcloud_zone" "zone" {
 # --- A records (web servers / load balancer) ---
 
 resource "hcloud_zone_rrset" "web" {
-  for_each = local.dns_ip != null ? {
+  for_each = var.manage_dns && local.env.web_servers_count > 0 ? {
     for record in local.dns_all_records :
     "${record.domain}/${record.name}" => record
   } : {}
