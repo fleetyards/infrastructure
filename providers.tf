@@ -2,11 +2,6 @@ provider "hcloud" {
   token = data.onepassword_item.hetzner.credential
 }
 
-provider "dnsimple" {
-  token   = data.onepassword_item.dnsimple.credential
-  account = data.onepassword_item.dnsimple.username
-}
-
 provider "aws" {
   region                      = "fsn1"
   skip_credentials_validation = true

@@ -28,11 +28,6 @@ terraform {
       version = ">= 2.3"
     }
 
-    dnsimple = {
-      source  = "dnsimple/dnsimple"
-      version = ">= 1.8"
-    }
-
     aws = {
       source  = "hashicorp/aws"
       version = ">= 5.0"
