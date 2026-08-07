@@ -1,6 +1,6 @@
 # FleetYards Infrastructure
 
-Terraform-managed infrastructure for FleetYards on Hetzner Cloud with DNS via DNSimple.
+Terraform-managed infrastructure for FleetYards on Hetzner Cloud, including DNS.
 
 ## Project Overview
 
@@ -11,7 +11,7 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 - **Web servers**: Public-facing, ports 80/443/22 open, run the application
 - **Accessory servers**: Private, only reachable via ProxyJump through web servers, run databases/caches
 - **Load balancer**: Created automatically when `web_servers_count > 1`
-- **DNS**: Managed via DNSimple (A records for root, www, api, admin, docs subdomains + short domains)
+- **DNS**: Hetzner DNS zones and rrsets (A records for root, www, api, admin, docs subdomains + short domains). DNSimple remains the registrar, but holds no records and is not managed by Terraform.
 - **Workspaces**: `stage` (fleetyards.dev) and `live` (fleetyards.net) — workspace-driven config via `env_config` in variables.tf
 
 ## Key Files
@@ -19,12 +19,12 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 | File | Purpose |
 |---|---|
 | `cloud.tf` | Core resources: servers, network, firewalls, load balancer |
-| `dns.tf` | DNSimple DNS records |
+| `dns.tf` | Hetzner DNS zones and records |
 | `data.tf` | Cloud-init data sources for server provisioning |
 | `variables.tf` | Input variables and per-environment config (`env_config`) |
 | `locals.tf` | Computed values (IP assignments) |
 | `versions.tf` | Terraform version constraints, backend config, provider versions |
-| `providers.tf` | Provider configuration (Hetzner, DNSimple, AWS/S3, Bunny CDN) |
+| `providers.tf` | Provider configuration (Hetzner, AWS/S3, Bunny CDN) |
 | `secrets.tf` | 1Password provider and data sources for secrets |
 | `storage.tf` | S3-compatible object storage buckets (storage + backups) |
 | `cdn.tf` | Bunny CDN pull zones and custom hostnames |

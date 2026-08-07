@@ -19,11 +19,6 @@ data "onepassword_item" "deploy_key" {
   title = terraform.workspace == "live" ? "Deploy Key Live" : "Deploy Key Stage"
 }
 
-data "onepassword_item" "dnsimple" {
-  vault = data.onepassword_vault.infra.uuid
-  title = "DNSimple"
-}
-
 data "onepassword_item" "bunny" {
   vault = data.onepassword_vault.infra.uuid
   title = "BunnyCDN"
