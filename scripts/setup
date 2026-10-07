@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VAULT="${OP_VAULT:-Fleetyards}"
+S3_ITEM="HETZNER_S3"
+TOKEN_ITEM="Service Account Auth Token: Fleetyards Write"
+
+cd "$(dirname "$0")/.."
+
+FORCE=false
+
+usage() {
+  echo "Usage: scripts/setup [--force]"
+  echo ""
+  echo "  Bootstraps a local checkout: checks tooling, writes .env from 1Password,"
+  echo "  and runs terraform init."
+  echo ""
+  echo "  --force  - Overwrite an existing .env without asking"
+  echo ""
+  echo "Environment variables:"
+  echo "  OP_VAULT  - 1Password vault to read from (default: Fleetyards)"
+  exit 1
+}
+
+case "${1:-}" in
+  --force) FORCE=true ;;
+  "") ;;
+  *) usage ;;
+esac
+
+require() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "==> Missing '$1'. Install it with: $2"
+    exit 1
+  fi
+}
+
+check_tooling() {
+  echo "==> Checking tooling..."
+  require terraform "brew install terraform"
+  require op "brew install 1password-cli"
+
+  # Doubles as the auth check: with desktop integration this is what raises the
+  # unlock prompt, and 'op whoami' stays unsigned-in even once that succeeds.
+  local error
+  if ! error=$(op vault get "$VAULT" 2>&1 >/dev/null); then
+    echo "==> Cannot reach the '$VAULT' vault with the 1Password CLI:"
+    echo "    ${error:-unknown error}"
+    echo ""
+    echo "    Approve the unlock prompt in the 1Password desktop app, or enable"
+    echo "    Settings -> Developer -> 'Integrate with 1Password CLI' and retry."
+    exit 1
+  fi
+}
+
+read_field() {
+  local item="$1" field="$2" value
+  value=$(op item get "$item" --vault "$VAULT" --fields "$field" --reveal 2>/dev/null) || true
+  if [ -z "$value" ]; then
+    echo "==> Could not read '$field' from '$item' in vault '$VAULT'." >&2
+    exit 1
+  fi
+  printf '%s' "$value"
+}
+
+write_env() {
+  if [ -f .env ] && [ "$FORCE" = false ]; then
+    read -r -p "==> .env already exists. Overwrite? [y/N] " reply
+    case "$reply" in
+      y|Y) ;;
+      *) echo "==> Keeping existing .env."; return ;;
+    esac
+  fi
+
+  echo "==> Writing .env from 1Password vault '$VAULT'..."
+  local access_key secret_key token
+  access_key=$(read_field "$S3_ITEM" access_key_id)
+  secret_key=$(read_field "$S3_ITEM" secret_access_key)
+  token=$(read_field "$TOKEN_ITEM" credential)
+
+  cat > .env <<EOF
+export AWS_ACCESS_KEY_ID=$access_key
+export AWS_SECRET_ACCESS_KEY=$secret_key
+export OP_SERVICE_ACCOUNT_TOKEN=$token
+EOF
+  chmod 600 .env
+}
+
+init_terraform() {
+  echo "==> Running terraform init..."
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+  terraform init -input=false
+}
+
+check_tooling
+write_env
+init_terraform
+
+echo ""
+echo "==> Done. Load the credentials into your shell and pick a workspace:"
+echo "      source .env"
+echo "      terraform workspace select stage   # or live"
+echo "      terraform plan"
