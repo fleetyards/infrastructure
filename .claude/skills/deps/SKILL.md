@@ -71,10 +71,10 @@ Provider majors always go to the report. Terraform providers use the major versi
 ```bash
 gh pr view <number> --repo fleetyards/infrastructure \
   --json statusCheckRollup \
-  --jq '[.statusCheckRollup[] | select(.conclusion != "SUCCESS" and .conclusion != "SKIPPED" and .conclusion != "NEUTRAL")] | map("\(.name): \(.conclusion // .status)") | .[]'
+  --jq '[.statusCheckRollup[] | select((.conclusion // .state) as $r | $r != "SUCCESS" and $r != "SKIPPED" and $r != "NEUTRAL")] | map("\(.name // .context): \(.conclusion // .state // .status)") | .[]'
 ```
 
-Empty output means green. Remember what `terraform_test` does and does not cover — see the warning above.
+Empty output means green. The rollup mixes `CheckRun` entries (result in `conclusion`) with commit `StatusContext` entries such as CodeRabbit and Devin Review (result in `state`, name in `context`), so the filter has to read both. Remember what `terraform_test` does and does not cover — see the warning above.
 
 #### Gate C — the plan is clean
 
