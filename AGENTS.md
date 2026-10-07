@@ -30,6 +30,8 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 | `cdn.tf` | Bunny CDN pull zones and custom hostnames |
 | `outputs.tf` | Server IPs and SSH config output |
 | `cloudinit/` | Cloud-init templates (base.yml, web.yml, accessories.yml) |
+| `scripts/setup` | Local bootstrap: tooling check, `.env` from 1Password, `terraform init` |
+| `scripts/maintenance` | Toggle maintenance mode (relaxes LB health checks) |
 | `tests/` | Terraform native tests (`.tftest.hcl`) |
 
 ## Commands
@@ -67,11 +69,11 @@ terraform fmt
 ### Sensitive Data
 
 - Secrets are managed via **1Password** using the Terraform `onepassword` provider
-- Data sources in `secrets.tf` fetch secrets from the `fleetyards-infra` vault at plan/apply time
-- Locally: requires 1Password desktop app running or `op signin`
+- Data sources in `secrets.tf` fetch secrets from the `Fleetyards` vault at plan/apply time
+- Locally: requires the 1Password desktop app with CLI integration enabled, or `op signin`
 - CI: uses `OP_SERVICE_ACCOUNT_TOKEN` GitHub Secret to authenticate with 1Password
 - AWS S3 backend credentials remain in GitHub Secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) since the backend initializes before providers
-- Locally, AWS S3 backend credentials are loaded from a `.env` file (gitignored)
+- Locally, AWS S3 backend credentials and `OP_SERVICE_ACCOUNT_TOKEN` are loaded from a `.env` file (gitignored) — run `scripts/setup` to generate it from 1Password
 - `.tfstate` files are stored in the remote S3 backend
 - `.tfvars` files are gitignored — no secrets are committed to the repository
 

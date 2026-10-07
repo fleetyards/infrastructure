@@ -50,15 +50,37 @@ All machines are `CX22`: 2 AMD vCPUs, 2 GB of RAM and 40 GB of SSD storage, runn
 
 The default setup of 1 web server and 1 accessory server will cost you around 9 EUR/month.
 
-### How to use it
+### Setup
 
-1. Clone
-2. Create a file `terraform.tfvars` with your credentials, it will look like this:
-```terraform
-hetzner_api_key = "your-api-key"
-github_username = "your-github-username" # Make sure to add your SSH key to your GitHub account
-ssh_key_name = "your-ssh-key-name" # The name of the SSH key on cloud.hetzner.de to be used for server access
+All credentials live in the `Fleetyards` 1Password vault. No `terraform.tfvars` file is needed — provider credentials are fetched at plan/apply time by the `onepassword` provider.
+
+1. Install the tooling and sign in to 1Password:
+
+```bash
+brew install terraform 1password-cli
+# then, in the 1Password desktop app:
+# Settings -> Developer -> "Integrate with 1Password CLI"
 ```
-4. Run `terraform init`
-5. Run `terraform plan` (optional)
-6. Run `terraform apply`
+
+2. Clone the repo and run the bootstrap script:
+
+```bash
+scripts/setup
+```
+
+It verifies the tooling, writes a gitignored `.env` with the S3 backend credentials and the 1Password service account token, and runs `terraform init`.
+
+3. Load the credentials and pick a workspace:
+
+```bash
+source .env
+terraform workspace select stage  # or live
+terraform plan
+terraform apply
+```
+
+The `.env` file is needed because the S3 backend initializes before any provider runs, so those two credentials cannot come from the `onepassword` provider itself.
+
+#### SSH access to existing servers
+
+Server logins are provisioned by cloud-init via `ssh_import_id: gh:<github_username>`, which only runs when a server is **created** — and `user_data` changes are ignored by lifecycle rules. A new SSH key added to GitHub will therefore not reach servers that already exist. Either reuse your existing key or append the new public key to `~/.ssh/authorized_keys` for the `kamal` user on each server.
