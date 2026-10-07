@@ -1,3 +1,0 @@
-hetzner_api_key = "<<YOUR_HETZNER_API_KEY>>"
-github_username = "<<YOUR_GITHUB_USERNAME>>"
-ssh_key_name = "<<YOUR_SSH_KEY_NAME>>"
