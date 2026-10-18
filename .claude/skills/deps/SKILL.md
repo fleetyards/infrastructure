@@ -91,7 +91,9 @@ terraform plan
 - Changes limited to new optional attributes defaulting in → usually safe; say what they are in the report.
 - **Any `must be replaced` / `-/+` destroy-and-recreate** → stop. Report it with the resource addresses. This is the failure mode a green `terraform_test` will not catch.
 
-If you cannot run a plan (missing credentials — `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `OP_SERVICE_ACCOUNT_TOKEN` are needed for the S3 backend and the 1Password provider), **say so explicitly in the report** and mark the PR as unverified rather than merging it on CI alone.
+These credentials usually come from the gitignored `.env` in the repo root, which `scripts/setup` generates from 1Password. If they are not already in the shell, `source .env` before `terraform init`.
+
+If you still cannot run a plan (missing credentials — `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `OP_SERVICE_ACCOUNT_TOKEN` are needed for the S3 backend and the 1Password provider), **say so explicitly in the report** and mark the PR as unverified rather than merging it on CI alone.
 
 Also check whether the PR touches `versions.tf`. It normally should not — a change to a `required_providers` constraint is Dependabot raising a floor, and is worth reading:
 
