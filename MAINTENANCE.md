@@ -189,7 +189,8 @@ bundle exec kamal app stop -d live --hosts <web-1-ip>
 
 # 3. Change only this server's entry in web_server_types, merge, then run the
 #    Deploy workflow with target "live". The plan must show this server's
-#    server_type changing and nothing else.
+#    server_type changing and its http label coming back (removed in step 1),
+#    and nothing else.
 
 # 4. Start the app again and wait for the target to report healthy
 bundle exec kamal app start -d live --hosts <web-1-ip>
