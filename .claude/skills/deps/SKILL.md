@@ -107,11 +107,16 @@ gh pr diff <number> --repo fleetyards/infrastructure --name-only
 
 ### 4. Merge the safe ones
 
+**Do not use `gh pr merge`.** With a merge queue on `main`, it ignores `--squash` ("The merge strategy for main is set by the merge queue") and falls back to enabling auto-merge, which fails here with `Auto merge is not allowed for this repository (enablePullRequestAutoMerge)`. Enqueue the PR directly instead:
+
 ```bash
-gh pr merge <number> --repo fleetyards/infrastructure --squash
+ID=$(gh pr view <number> --repo fleetyards/infrastructure --json id --jq .id)
+gh api graphql \
+  -f query='mutation($id:ID!){enqueuePullRequest(input:{pullRequestId:$id}){mergeQueueEntry{position state}}}' \
+  -f id="$ID"
 ```
 
-`main` has a merge queue, so this enqueues rather than merging on the spot.
+A `"state":"QUEUED"` response means it is in the queue. The queue picks the merge method, so it lands when the queue's own checks pass.
 
 **Merge one at a time and watch the Stage apply before merging the next**:
 
