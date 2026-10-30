@@ -170,6 +170,35 @@ ssh -J kamal@<web-ip> kamal@<accessory-ip> "sudo reboot"
 ssh -J kamal@<web-ip> kamal@<accessory-ip> "docker ps"
 ```
 
+## Rescaling Web Servers (Live)
+
+A server type change is an in-place update, but Hetzner powers the server off to apply it, and one apply rescales every server whose type changed at the same time. `web_server_types` in `env_config` has one entry per web server so each apply can change one server. `keep_disk = true` keeps the disk at its current size, so a later move back to the smaller type stays possible.
+
+For each web server, one at a time:
+
+```bash
+export HCLOUD_TOKEN=$(op read "op://Fleetyards/HCLOUD_LIVE/credential")
+
+# 1. Take it out of the load balancer (targets are selected by label).
+#    The apply in step 3 puts the label back.
+hcloud server remove-label fltyrd-live-web-1 http
+
+# 2. Stop its app containers, so Sidekiq requeues in-flight jobs instead of
+#    losing them to the power-off (run from the app repo)
+bundle exec kamal app stop -d live --hosts <web-1-ip>
+
+# 3. Change only this server's entry in web_server_types, merge, then run the
+#    Deploy workflow with target "live". The plan must show this server's
+#    server_type changing and its http label coming back (removed in step 1),
+#    and nothing else.
+
+# 4. Start the app again and wait for the target to report healthy
+bundle exec kamal app start -d live --hosts <web-1-ip>
+hcloud load-balancer describe fltyrd-live-web-load-balancer
+```
+
+Then repeat for the next server. The Discord bot runs on one web server only, so it is offline while that server is rescaled. `kamal app stop` and `start` take the deploy lock; if one dies on an SSH reset, check `kamal lock status -d live` before going on.
+
 ## Immutable Server Replacement (OS Upgrades)
 
 For major OS upgrades (e.g., Ubuntu 24.04 to 26.04) or significant base configuration changes, replace servers entirely rather than upgrading in-place.
