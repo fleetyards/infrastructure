@@ -174,40 +174,66 @@ ssh -J kamal@<web-ip> kamal@<accessory-ip> "docker ps"
 
 A server type change is an in-place update, but Hetzner powers the server off to apply it, and one apply rescales every server whose type changed at the same time. `web_server_types` in `env_config` has one entry per web server so each apply can change one server. `keep_disk = true` keeps the disk at its current size, so a later move back to the smaller type stays possible.
 
-Hold merges in the app repo for the whole rollout: a deploy would try to reach a server that is off. Avoid the 20:00 and 22:00 Berlin loaders, which do not recover from a stopped worker.
+**Once a type change is on `main`, the next live apply of any kind performs it**, including `scripts/maintenance`: the provider cuts the power on a running server and does not start it again. So merge it right before the rollout, and run no other live apply until the rollout is done. Never have two servers' changes on `main` before the first is applied, as one apply would power off both.
+
+Before starting:
+
+- Hold merges in the app repo for the whole rollout: a deploy would try to reach a server that is off.
+- Pick a quiet window. `config/sidekiq_schedule.yml` runs heavy jobs around 20:00-20:30, 22:00-22:45, 01:00-03:15 and 04:15-06:30, and 18:00-22:00 on Sundays. Stopping a worker requeues the jobs it is running, but a loader caught by the stop leaves its import marked as running, and the remaining server carries everything meanwhile.
 
 For each web server, one at a time:
 
 ```bash
 export HCLOUD_TOKEN=$(op read "op://Fleetyards/HCLOUD_LIVE/credential")
 
-# 1. Take it out of the load balancer (targets are selected by label).
-#    The apply in step 3 puts the label back.
+# 1. Check cx43 shows as available in the server's location. This is an
+#    indicator, not a guarantee.
+hcloud server-type describe cx43
+
+# 2. Merge the change to this server's entry in web_server_types. Live only
+#    applies on a manual run, so this changes nothing yet.
+
+# 3. Note the running version (run from the app repo). `kamal app start` uses
+#    the local git HEAD unless it is given a version, and the container for that
+#    version may not exist.
+bundle exec kamal app version -d live --hosts <web-1-ip>
+
+# 4. Take it out of the load balancer (targets are selected by label). This also
+#    detaches the allow-http-https firewall, so in-flight requests and WebSockets
+#    drop rather than drain, and clients reconnect. The apply puts the label back.
 hcloud server remove-label fltyrd-live-web-1 http
 
-# 2. Stop its app containers, so Sidekiq requeues in-flight jobs instead of
-#    losing them to the power-off (run from the app repo)
+# 5. Stop its app containers (run from the app repo)
 bundle exec kamal app stop -d live --hosts <web-1-ip>
 
-# 3. Change only this server's entry in web_server_types, merge, then run the
-#    Deploy workflow with target "live". The plan must show this server's
-#    server_type changing and its http label coming back (removed in step 1),
-#    and nothing else.
+# 6. Shut it down cleanly. The provider only cuts the power on a running server.
+hcloud server shutdown fltyrd-live-web-1
+hcloud server list -o columns=name,status
 
-# 4. Power it back on and wait for SSH. The provider powers the server off to
-#    change its type and does not start it again. The label is already back, but
-#    the target stays unhealthy, so it gets no traffic until step 5.
+# 7. Once it is off, run the Deploy workflow with target "live". The plan must
+#    show this server's server_type changing and its http label coming back, and
+#    nothing else.
+
+# 8. Power it back on and wait for SSH. The label is already back, but the target
+#    stays unhealthy, so it gets no traffic until the app is up.
 hcloud server poweron fltyrd-live-web-1
 
-# 5. Start the app again and wait for the target to report healthy. `hcloud
-#    load-balancer list` shows "mixed" for a label selector however healthy the
-#    targets are, so read the status per server.
-bundle exec kamal app start -d live --hosts <web-1-ip>
-hcloud load-balancer describe fltyrd-live-web-load-balancer -o json \
-  | jq '.targets[].targets[] | {server: .server.id, health: .health_status}'
+# 9. Start the running version from step 3, and wait for the target to report
+#    healthy. `hcloud load-balancer list` shows "mixed" for a label selector
+#    however healthy the targets are, so ask about this server.
+bundle exec kamal app start -d live --hosts <web-1-ip> --version=<version>
+SERVER_ID=$(hcloud server describe fltyrd-live-web-1 -o json | jq .id)
+until hcloud load-balancer describe fltyrd-live-web-load-balancer -o json | jq -e --argjson id "$SERVER_ID" \
+  '[.targets[].targets[] | select(.server.id == $id) | .health_status[].status] | length > 0 and all(. == "healthy")' >/dev/null; do
+  sleep 10
+done
 ```
 
-Then repeat for the next server. The Discord bot runs on one web server only, so it is offline while that server is rescaled. `kamal app stop` and `start` take the deploy lock; if one dies on an SSH reset, check `kamal lock status -d live` before going on.
+### If the apply fails
+
+The provider applies the label first, then the power change, then the type change, so a failed apply can leave the server off, on either type, and back in the load balancer. Check it with `hcloud server describe fltyrd-live-web-1`, then carry on from step 8 to bring it back, on whichever type it has. Retry from step 4 once the cause is fixed, for example when `resource_unavailable` means the location has no capacity for the new type.
+
+Then repeat for the next server. The Discord bot runs on one web server only, so it is offline while that server is rescaled; check which one first with `bundle exec kamal app details -d live -r discord_bot`, as it follows the first IP the server list returns. `kamal app stop` and `start` take the deploy lock; if one dies on an SSH reset, check `kamal lock status -d live` before going on.
 
 ## Immutable Server Replacement (OS Upgrades)
 
