@@ -174,6 +174,8 @@ ssh -J kamal@<web-ip> kamal@<accessory-ip> "docker ps"
 
 A server type change is an in-place update, but Hetzner powers the server off to apply it, and one apply rescales every server whose type changed at the same time. `web_server_types` in `env_config` has one entry per web server so each apply can change one server. `keep_disk = true` keeps the disk at its current size, so a later move back to the smaller type stays possible.
 
+Hold merges in the app repo for the whole rollout: a deploy would try to reach a server that is off. Avoid the 20:00 and 22:00 Berlin loaders, which do not recover from a stopped worker.
+
 For each web server, one at a time:
 
 ```bash
@@ -192,9 +194,17 @@ bundle exec kamal app stop -d live --hosts <web-1-ip>
 #    server_type changing and its http label coming back (removed in step 1),
 #    and nothing else.
 
-# 4. Start the app again and wait for the target to report healthy
+# 4. Power it back on and wait for SSH. The provider powers the server off to
+#    change its type and does not start it again. The label is already back, but
+#    the target stays unhealthy, so it gets no traffic until step 5.
+hcloud server poweron fltyrd-live-web-1
+
+# 5. Start the app again and wait for the target to report healthy. `hcloud
+#    load-balancer list` shows "mixed" for a label selector however healthy the
+#    targets are, so read the status per server.
 bundle exec kamal app start -d live --hosts <web-1-ip>
-hcloud load-balancer describe fltyrd-live-web-load-balancer
+hcloud load-balancer describe fltyrd-live-web-load-balancer -o json \
+  | jq '.targets[].targets[] | {server: .server.id, health: .health_status}'
 ```
 
 Then repeat for the next server. The Discord bot runs on one web server only, so it is offline while that server is rescaled. `kamal app stop` and `start` take the deploy lock; if one dies on an SSH reset, check `kamal lock status -d live` before going on.
