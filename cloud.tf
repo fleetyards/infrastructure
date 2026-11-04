@@ -18,8 +18,11 @@ resource "hcloud_server" "web_server" {
   count       = local.env.web_servers_count
   name        = local.env.web_servers_count > 1 ? "fltyrd-${terraform.workspace}-web-${count.index + 1}" : "fltyrd-${terraform.workspace}-web"
   image       = var.operating_system
-  server_type = local.env.server_type
+  server_type = local.env.web_server_types[count.index]
   location    = var.region
+  # Rescale without growing the disk, which would rule out ever moving back
+  # to a smaller type.
+  keep_disk = true
   labels = {
     "ssh"  = "yes"
     "http" = "yes"
@@ -51,8 +54,9 @@ resource "hcloud_server" "accessory_server" {
   count       = local.env.accessories_count
   name        = local.env.accessories_count > 1 ? "fltyrd-${terraform.workspace}-accessories-${count.index + 1}" : "fltyrd-${terraform.workspace}-accessories"
   image       = var.operating_system
-  server_type = local.env.server_type
+  server_type = local.env.accessories_server_type
   location    = var.region
+  keep_disk   = true
   labels = {
     "http" = "no"
     "ssh"  = "yes"

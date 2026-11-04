@@ -18,38 +18,50 @@ variable "operating_system" {
 variable "env_config" {
   description = "Per-environment server configuration, keyed by workspace name."
   type = map(object({
-    server_type       = string
-    web_servers_count = number
-    accessories_count = number
-    domains           = list(string)
-    short_domains     = list(string)
-    cors_origins      = list(string)
+    web_server_types        = list(string)
+    accessories_server_type = string
+    web_servers_count       = number
+    accessories_count       = number
+    domains                 = list(string)
+    short_domains           = list(string)
+    cors_origins            = list(string)
   }))
   default = {
     default = {
-      server_type       = "cx23"
-      web_servers_count = 1
-      accessories_count = 1
-      domains           = []
-      short_domains     = []
-      cors_origins      = ["http://fleetyards.test", "http://*.fleetyards.test"]
+      web_server_types        = ["cx23"]
+      accessories_server_type = "cx23"
+      web_servers_count       = 1
+      accessories_count       = 1
+      domains                 = []
+      short_domains           = []
+      cors_origins            = ["http://fleetyards.test", "http://*.fleetyards.test"]
     }
     stage = {
-      server_type       = "cx23"
-      web_servers_count = 0
-      accessories_count = 0
-      domains           = ["fleetyards.dev"]
-      short_domains     = ["fltyrd.dev"]
-      cors_origins      = ["https://fleetyards.dev", "https://*.fleetyards.dev"]
+      web_server_types        = []
+      accessories_server_type = "cx23"
+      web_servers_count       = 0
+      accessories_count       = 0
+      domains                 = ["fleetyards.dev"]
+      short_domains           = ["fltyrd.dev"]
+      cors_origins            = ["https://fleetyards.dev", "https://*.fleetyards.dev"]
     }
     live = {
-      server_type       = "cx33"
-      web_servers_count = 2
-      accessories_count = 1
-      domains           = ["fleetyards.net"]
-      short_domains     = ["fltyrd.net"]
-      cors_origins      = ["https://fleetyards.net", "https://*.fleetyards.net"]
+      # One entry per web server, so a type change can roll out one server per
+      # apply: an apply rescales every server whose entry changed at once, and
+      # rescaling powers the server off.
+      web_server_types        = ["cx43", "cx33"]
+      accessories_server_type = "cx33"
+      web_servers_count       = 2
+      accessories_count       = 1
+      domains                 = ["fleetyards.net"]
+      short_domains           = ["fltyrd.net"]
+      cors_origins            = ["https://fleetyards.net", "https://*.fleetyards.net"]
     }
+  }
+
+  validation {
+    condition     = alltrue([for env in values(var.env_config) : length(env.web_server_types) == env.web_servers_count])
+    error_message = "Each environment needs exactly one entry in web_server_types per web server."
   }
 }
 
