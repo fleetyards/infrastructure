@@ -49,7 +49,7 @@ variable "env_config" {
       # One entry per web server, so a type change can roll out one server per
       # apply: an apply rescales every server whose entry changed at once, and
       # rescaling powers the server off.
-      web_server_types        = ["cx43", "cx33"]
+      web_server_types        = ["cx43", "cx43"]
       accessories_server_type = "cx33"
       web_servers_count       = 2
       accessories_count       = 1
