@@ -146,3 +146,38 @@ resource "bunnynet_pullzone_edgerule" "storage_cors" {
     }
   ]
 }
+
+# A Bunny Storage origin does not pass on the Cache-Control stored with an
+# object, so without this the overlay manifest would be cached for the zone's
+# default 30 days instead of the 5 minutes the publisher sets.
+resource "bunnynet_pullzone_edgerule" "storage_overlay_manifest_cache" {
+  enabled     = true
+  pullzone    = bunnynet_pullzone.storage.id
+  description = "Short cache for overlay manifests"
+
+  actions = [
+    {
+      type       = "OverrideCacheTime"
+      parameter1 = "300"
+      parameter2 = null
+      parameter3 = null
+    },
+    {
+      type       = "SetResponseHeader"
+      parameter1 = "Cache-Control"
+      parameter2 = "public, max-age=300"
+      parameter3 = null
+    }
+  ]
+
+  match_type = "MatchAny"
+  triggers = [
+    {
+      type       = "Url"
+      match_type = "MatchAny"
+      patterns   = ["*/overlay/*/manifest.json"]
+      parameter1 = null
+      parameter2 = null
+    }
+  ]
+}
