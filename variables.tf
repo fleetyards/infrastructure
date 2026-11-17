@@ -60,7 +60,7 @@ variable "env_config" {
       domains                 = ["fleetyards.net"]
       short_domains           = ["fltyrd.net"]
       cors_origins            = ["https://fleetyards.net", "https://*.fleetyards.net"]
-      storage_origin          = "hetzner"
+      storage_origin          = "bunny"
       # The storage pull zone serves every uploaded image, so live uses the
       # cheaper Volume network for it.
       storage_routing_tier = "Volume"
