@@ -49,3 +49,29 @@ resource "onepassword_item" "bunny_storage" {
     }
   }
 }
+
+resource "onepassword_item" "bunny_uploads" {
+  vault    = data.onepassword_vault.infra.uuid
+  title    = "BUNNY_UPLOADS_${upper(terraform.workspace)}"
+  category = "password"
+  password = bunnynet_storage_zone.uploads.password
+
+  section {
+    label = "config"
+
+    field {
+      label = "zone_name"
+      value = bunnynet_storage_zone.uploads.name
+    }
+
+    field {
+      label = "endpoint"
+      value = "https://${bunnynet_storage_zone.uploads.hostname_s3}"
+    }
+
+    field {
+      label = "region"
+      value = lower(bunnynet_storage_zone.uploads.region)
+    }
+  }
+}

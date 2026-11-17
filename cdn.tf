@@ -30,6 +30,13 @@ resource "bunnynet_pullzone_hostname" "cdn" {
   force_ssl   = true
 }
 
+resource "bunnynet_storage_zone" "uploads" {
+  name      = "fltyrd-${terraform.workspace}-uploads"
+  region    = "DE"
+  zone_tier = "Standard"
+  type      = "S3"
+}
+
 resource "bunnynet_pullzone" "storage" {
   name = "fltyrd-${terraform.workspace}-storage"
 

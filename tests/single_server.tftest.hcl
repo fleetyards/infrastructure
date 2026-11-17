@@ -25,4 +25,9 @@ run "create_servers" {
     condition     = can(regex("accessories", data.cloudinit_config.accessories_config[0].part[0].content))
     error_message = "Cloud-init config for fltyrd-accessories is not correct"
   }
+
+  assert {
+    condition     = bunnynet_storage_zone.uploads.type == "S3"
+    error_message = "The uploads storage zone needs S3 compatibility, which can only be set when the zone is created"
+  }
 }
