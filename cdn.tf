@@ -30,13 +30,25 @@ resource "bunnynet_pullzone_hostname" "cdn" {
   force_ssl   = true
 }
 
+resource "bunnynet_storage_zone" "uploads" {
+  name      = "fltyrd-${terraform.workspace}-uploads"
+  region    = "DE"
+  zone_tier = "Standard"
+  type      = "S3"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 resource "bunnynet_pullzone" "storage" {
   name = "fltyrd-${terraform.workspace}-storage"
 
   origin {
-    type                = "OriginUrl"
-    url                 = "https://fsn1.your-objectstorage.com/fltyrd-${terraform.workspace}-storage"
-    forward_host_header = false
+    type                = local.env.storage_origin == "bunny" ? "StorageZone" : "OriginUrl"
+    url                 = local.env.storage_origin == "bunny" ? null : "https://fsn1.your-objectstorage.com/fltyrd-${terraform.workspace}-storage"
+    storagezone         = local.env.storage_origin == "bunny" ? bunnynet_storage_zone.uploads.id : null
+    forward_host_header = local.env.storage_origin == "bunny" ? null : false
   }
 
   routing {
@@ -133,6 +145,67 @@ resource "bunnynet_pullzone_edgerule" "storage_cors" {
       type       = "Url"
       match_type = "MatchAny"
       patterns   = ["*"]
+      parameter1 = null
+      parameter2 = null
+    }
+  ]
+}
+
+resource "bunnynet_pullzone_edgerule" "storage_no_cache_errors" {
+  enabled     = true
+  pullzone    = bunnynet_pullzone.storage.id
+  description = "Prevent caching of error responses"
+
+  actions = [
+    {
+      type       = "OverrideCacheTime"
+      parameter1 = "0"
+      parameter2 = null
+      parameter3 = null
+    }
+  ]
+
+  match_type = "MatchAny"
+  triggers = [
+    {
+      type       = "StatusCode"
+      match_type = "MatchAny"
+      patterns   = ["404", "500", "502", "503", "504"]
+      parameter1 = null
+      parameter2 = null
+    }
+  ]
+}
+
+# A Bunny Storage origin does not pass on the Cache-Control stored with an
+# object, so without this the overlay manifest would be cached for the zone's
+# default 30 days instead of the 5 minutes the publisher sets.
+resource "bunnynet_pullzone_edgerule" "storage_overlay_manifest_cache" {
+  enabled     = true
+  pullzone    = bunnynet_pullzone.storage.id
+  description = "Short cache for overlay manifests"
+
+  actions = [
+    {
+      type       = "OverrideCacheTime"
+      parameter1 = "300"
+      parameter2 = null
+      parameter3 = null
+    },
+    {
+      type       = "SetResponseHeader"
+      parameter1 = "Cache-Control"
+      parameter2 = "public, max-age=300"
+      parameter3 = null
+    }
+  ]
+
+  match_type = "MatchAny"
+  triggers = [
+    {
+      type       = "Url"
+      match_type = "MatchAny"
+      patterns   = ["*/overlay/*/manifest.json"]
       parameter1 = null
       parameter2 = null
     }
