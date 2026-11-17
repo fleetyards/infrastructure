@@ -55,6 +55,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.target == 'live'
     runs-on: ubuntu-latest
     environment: Live Plan
+    outputs:
+      has_changes: ${{ steps.summary.outputs.has_changes }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -77,9 +79,37 @@ jobs:
       - name: Plan
         run: terraform plan -out=tfplan
 
-      - name: Check for destructive changes
+      # The apply job waits for approval on the Live environment; this is what
+      # the reviewer reads there before approving.
+      - name: Summarise plan
+        id: summary
         run: |
           terraform show -json tfplan > plan.json
+          count() { jq "[.resource_changes[]? | select(.change.actions | $1)] | length" plan.json; }
+          ADDS=$(count 'contains(["create"])')
+          CHANGES=$(count '. == ["update"]')
+          DESTROYS=$(count 'contains(["delete"])')
+          if [ "$((ADDS + CHANGES + DESTROYS))" -gt 0 ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "## Live plan: $ADDS to add, $CHANGES to change, $DESTROYS to destroy"
+            echo
+            jq -r '.resource_changes[]? | select(.change.actions != ["no-op"] and .change.actions != ["read"]) | "- `\(.address)`: \(.change.actions | join(", "))"' plan.json
+            echo
+            echo '<details><summary>Full plan</summary>'
+            echo
+            echo '```'
+            terraform show -no-color tfplan
+            echo '```'
+            echo
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check for destructive changes
+        run: |
           DESTROYS=$(jq '[.resource_changes[]? | select(.change.actions | contains(["delete"]))] | length' plan.json)
           REPLACES=$(jq '[.resource_changes[]? | select(.change.actions | contains(["delete", "create"]))] | length' plan.json)
           echo "Resources to destroy: $DESTROYS"
@@ -97,6 +127,7 @@ jobs:
 
   live-apply:
     needs: live-plan
+    if: needs.live-plan.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     environment: Live
     env:
