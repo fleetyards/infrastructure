@@ -35,6 +35,10 @@ resource "bunnynet_storage_zone" "uploads" {
   region    = "DE"
   zone_tier = "Standard"
   type      = "S3"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "bunnynet_pullzone" "storage" {
