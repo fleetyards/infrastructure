@@ -62,7 +62,7 @@ terraform fmt
 - **Test** (`.github/workflows/terraform-test.yml`): Runs `terraform validate` and `terraform test` on push to main and PRs
 - **Deploy** (`.github/workflows/terraform-deploy.yml`):
   - **Stage**: Auto-deploys after successful test on main
-  - **Live**: Manual dispatch only, with destructive change detection — blocks if plan contains any deletes or replacements
+  - **Live**: Manual dispatch only, with destructive change detection — blocks if plan contains any deletes or replacements. The apply job waits for approval on the `Live` environment; the run summary lists the planned changes and the full plan, and the approved apply runs exactly that saved plan. A plan with no changes skips the apply
 
 ## Working with This Repo
 
