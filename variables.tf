@@ -25,6 +25,7 @@ variable "env_config" {
     domains                 = list(string)
     short_domains           = list(string)
     cors_origins            = list(string)
+    storage_origin          = string
   }))
   default = {
     default = {
@@ -35,6 +36,7 @@ variable "env_config" {
       domains                 = []
       short_domains           = []
       cors_origins            = ["http://fleetyards.test", "http://*.fleetyards.test"]
+      storage_origin          = "hetzner"
     }
     stage = {
       web_server_types        = []
@@ -44,6 +46,7 @@ variable "env_config" {
       domains                 = ["fleetyards.dev"]
       short_domains           = ["fltyrd.dev"]
       cors_origins            = ["https://fleetyards.dev", "https://*.fleetyards.dev"]
+      storage_origin          = "hetzner"
     }
     live = {
       # One entry per web server, so a type change can roll out one server per
@@ -56,12 +59,18 @@ variable "env_config" {
       domains                 = ["fleetyards.net"]
       short_domains           = ["fltyrd.net"]
       cors_origins            = ["https://fleetyards.net", "https://*.fleetyards.net"]
+      storage_origin          = "hetzner"
     }
   }
 
   validation {
     condition     = alltrue([for env in values(var.env_config) : length(env.web_server_types) == env.web_servers_count])
     error_message = "Each environment needs exactly one entry in web_server_types per web server."
+  }
+
+  validation {
+    condition     = alltrue([for env in values(var.env_config) : contains(["hetzner", "bunny"], env.storage_origin)])
+    error_message = "storage_origin must be either \"hetzner\" or \"bunny\"."
   }
 }
 

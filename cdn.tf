@@ -41,9 +41,10 @@ resource "bunnynet_pullzone" "storage" {
   name = "fltyrd-${terraform.workspace}-storage"
 
   origin {
-    type                = "OriginUrl"
-    url                 = "https://fsn1.your-objectstorage.com/fltyrd-${terraform.workspace}-storage"
-    forward_host_header = false
+    type                = local.env.storage_origin == "bunny" ? "StorageZone" : "OriginUrl"
+    url                 = local.env.storage_origin == "bunny" ? null : "https://fsn1.your-objectstorage.com/fltyrd-${terraform.workspace}-storage"
+    storagezone         = local.env.storage_origin == "bunny" ? bunnynet_storage_zone.uploads.id : null
+    forward_host_header = local.env.storage_origin == "bunny" ? null : false
   }
 
   routing {

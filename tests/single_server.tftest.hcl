@@ -30,4 +30,9 @@ run "create_servers" {
     condition     = bunnynet_storage_zone.uploads.type == "S3"
     error_message = "The uploads storage zone needs S3 compatibility, which can only be set when the zone is created"
   }
+
+  assert {
+    condition     = bunnynet_pullzone.storage.origin.type == "OriginUrl" && bunnynet_pullzone.storage.origin.url == "https://fsn1.your-objectstorage.com/fltyrd-default-storage"
+    error_message = "The storage pull zone should keep pulling from the Hetzner bucket while storage_origin is hetzner"
+  }
 }

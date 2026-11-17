@@ -13,6 +13,7 @@ variables {
       domains                 = ["example.com"]
       short_domains           = ["ex.com"]
       cors_origins            = ["https://example.com"]
+      storage_origin          = "bunny"
     }
   }
 }
@@ -54,6 +55,11 @@ run "create_servers" {
     condition     = can(regex("web-2", data.cloudinit_config.web_server_config[1].part[0].content))
     error_message = "Cloud-init config for fltyrd-web-2 is not correct"
   }
+
+  assert {
+    condition     = bunnynet_pullzone.storage.origin.type == "StorageZone"
+    error_message = "The storage pull zone should pull from the uploads storage zone when storage_origin is bunny"
+  }
 }
 
 run "rejects_a_type_list_shorter_than_the_server_count" {
@@ -69,6 +75,28 @@ run "rejects_a_type_list_shorter_than_the_server_count" {
         domains                 = ["example.com"]
         short_domains           = ["ex.com"]
         cors_origins            = ["https://example.com"]
+        storage_origin          = "hetzner"
+      }
+    }
+  }
+
+  expect_failures = [var.env_config]
+}
+
+run "rejects_an_unknown_storage_origin" {
+  command = plan
+
+  variables {
+    env_config = {
+      default = {
+        web_server_types        = ["cx23"]
+        accessories_server_type = "cx23"
+        web_servers_count       = 1
+        accessories_count       = 1
+        domains                 = ["example.com"]
+        short_domains           = ["ex.com"]
+        cors_origins            = ["https://example.com"]
+        storage_origin          = "r2"
       }
     }
   }
