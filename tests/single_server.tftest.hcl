@@ -35,4 +35,9 @@ run "create_servers" {
     condition     = bunnynet_pullzone.storage.origin.type == "OriginUrl" && bunnynet_pullzone.storage.origin.url == "https://fsn1.your-objectstorage.com/fltyrd-default-storage"
     error_message = "The storage pull zone should keep pulling from the Hetzner bucket while storage_origin is hetzner"
   }
+
+  assert {
+    condition     = bunnynet_pullzone.storage.routing.tier == "Standard"
+    error_message = "The storage pull zone should default to the Standard routing tier"
+  }
 }

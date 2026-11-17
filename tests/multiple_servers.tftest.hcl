@@ -14,6 +14,7 @@ variables {
       short_domains           = ["ex.com"]
       cors_origins            = ["https://example.com"]
       storage_origin          = "bunny"
+      storage_routing_tier    = "Volume"
     }
   }
 }
@@ -60,6 +61,11 @@ run "create_servers" {
     condition     = bunnynet_pullzone.storage.origin.type == "StorageZone"
     error_message = "The storage pull zone should pull from the uploads storage zone when storage_origin is bunny"
   }
+
+  assert {
+    condition     = bunnynet_pullzone.storage.routing.tier == "Volume"
+    error_message = "The storage pull zone should take storage_routing_tier"
+  }
 }
 
 run "rejects_a_type_list_shorter_than_the_server_count" {
@@ -97,6 +103,28 @@ run "rejects_an_unknown_storage_origin" {
         short_domains           = ["ex.com"]
         cors_origins            = ["https://example.com"]
         storage_origin          = "r2"
+      }
+    }
+  }
+
+  expect_failures = [var.env_config]
+}
+
+run "rejects_an_unknown_storage_routing_tier" {
+  command = plan
+
+  variables {
+    env_config = {
+      default = {
+        web_server_types        = ["cx23"]
+        accessories_server_type = "cx23"
+        web_servers_count       = 1
+        accessories_count       = 1
+        domains                 = ["example.com"]
+        short_domains           = ["ex.com"]
+        cors_origins            = ["https://example.com"]
+        storage_origin          = "hetzner"
+        storage_routing_tier    = "Premium"
       }
     }
   }
