@@ -52,7 +52,7 @@ resource "bunnynet_pullzone" "storage" {
   }
 
   routing {
-    tier = "Standard"
+    tier = local.env.storage_routing_tier
   }
 
   cors_enabled = true

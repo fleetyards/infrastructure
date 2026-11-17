@@ -45,8 +45,11 @@ resource "hcloud_server" "web_server" {
     ipv6_enabled = true
   }
 
+  # Both are only read when a server is created. Re-adding the SSH key in the
+  # console gives it a new ID, and a changed ssh_keys would otherwise replace
+  # every server.
   lifecycle {
-    ignore_changes = [user_data]
+    ignore_changes = [user_data, ssh_keys]
   }
 }
 
@@ -79,8 +82,11 @@ resource "hcloud_server" "accessory_server" {
     ipv6_enabled = true
   }
 
+  # Both are only read when a server is created. Re-adding the SSH key in the
+  # console gives it a new ID, and a changed ssh_keys would otherwise replace
+  # every server.
   lifecycle {
-    ignore_changes = [user_data]
+    ignore_changes = [user_data, ssh_keys]
   }
 }
 

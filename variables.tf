@@ -26,6 +26,7 @@ variable "env_config" {
     short_domains           = list(string)
     cors_origins            = list(string)
     storage_origin          = string
+    storage_routing_tier    = optional(string, "Standard")
   }))
   default = {
     default = {
@@ -60,6 +61,9 @@ variable "env_config" {
       short_domains           = ["fltyrd.net"]
       cors_origins            = ["https://fleetyards.net", "https://*.fleetyards.net"]
       storage_origin          = "hetzner"
+      # The storage pull zone serves every uploaded image, so live uses the
+      # cheaper Volume network for it.
+      storage_routing_tier = "Volume"
     }
   }
 
@@ -71,6 +75,11 @@ variable "env_config" {
   validation {
     condition     = alltrue([for env in values(var.env_config) : contains(["hetzner", "bunny"], env.storage_origin)])
     error_message = "storage_origin must be either \"hetzner\" or \"bunny\"."
+  }
+
+  validation {
+    condition     = alltrue([for env in values(var.env_config) : contains(["Standard", "Volume"], env.storage_routing_tier)])
+    error_message = "storage_routing_tier must be either \"Standard\" or \"Volume\"."
   }
 }
 
