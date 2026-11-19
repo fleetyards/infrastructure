@@ -47,7 +47,7 @@ variable "env_config" {
       domains                 = ["fleetyards.dev"]
       short_domains           = ["fltyrd.dev"]
       cors_origins            = ["https://fleetyards.dev", "https://*.fleetyards.dev"]
-      storage_origin          = "hetzner"
+      storage_origin          = "bunny"
     }
     live = {
       # One entry per web server, so a type change can roll out one server per
