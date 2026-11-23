@@ -38,6 +38,11 @@ terraform {
       version = ">= 0.4"
     }
 
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = ">= 5.29"
+    }
+
     onepassword = {
       source  = "1Password/onepassword"
       version = ">= 2.1"

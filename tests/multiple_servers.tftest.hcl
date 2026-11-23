@@ -2,6 +2,17 @@ mock_provider "hcloud" {}
 mock_provider "aws" {}
 mock_provider "bunnynet" {}
 mock_provider "onepassword" {}
+mock_provider "cloudflare" {}
+
+override_module {
+  target = module.r2_backups
+  outputs = {
+    bucket            = "fltyrd-default-backups"
+    endpoint          = "https://mock-account.r2.cloudflarestorage.com"
+    access_key_id     = "mock-access-key-id"
+    secret_access_key = "mock-secret-access-key"
+  }
+}
 
 variables {
   env_config = {

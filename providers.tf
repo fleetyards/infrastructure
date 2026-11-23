@@ -17,3 +17,7 @@ provider "aws" {
 provider "bunnynet" {
   api_key = data.onepassword_item.bunny.credential
 }
+
+provider "cloudflare" {
+  api_token = data.onepassword_item.cloudflare.credential
+}

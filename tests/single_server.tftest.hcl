@@ -2,6 +2,17 @@ mock_provider "hcloud" {}
 mock_provider "aws" {}
 mock_provider "bunnynet" {}
 mock_provider "onepassword" {}
+mock_provider "cloudflare" {}
+
+override_module {
+  target = module.r2_backups
+  outputs = {
+    bucket            = "fltyrd-default-backups"
+    endpoint          = "https://mock-account.r2.cloudflarestorage.com"
+    access_key_id     = "mock-access-key-id"
+    secret_access_key = "mock-secret-access-key"
+  }
+}
 
 run "create_servers" {
   command = plan
@@ -24,6 +35,11 @@ run "create_servers" {
   assert {
     condition     = can(regex("accessories", data.cloudinit_config.accessories_config[0].part[0].content))
     error_message = "Cloud-init config for fltyrd-accessories is not correct"
+  }
+
+  assert {
+    condition     = onepassword_item.r2_backups.username == "mock-access-key-id" && onepassword_item.r2_backups.section[0].field[0].value == "fltyrd-default-backups"
+    error_message = "The R2 backups item should carry the bucket's S3 credentials and name"
   }
 
   assert {
