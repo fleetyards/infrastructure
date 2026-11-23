@@ -49,6 +49,13 @@ data "cloudflare_account_api_token_permission_groups_list" "r2_bucket_item_write
   account_id = var.account_id
   name       = "Workers%20R2%20Storage%20Bucket%20Item%20Write"
   scope      = "com.cloudflare.edge.r2.bucket"
+
+  lifecycle {
+    postcondition {
+      condition     = length(self.result) == 1
+      error_message = "Expected exactly one \"Workers R2 Storage Bucket Item Write\" permission group, found ${length(self.result)}."
+    }
+  }
 }
 
 resource "cloudflare_account_token" "backups" {
