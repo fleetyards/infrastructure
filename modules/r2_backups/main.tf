@@ -24,7 +24,7 @@ variable "lock_days" {
 resource "cloudflare_r2_bucket" "backups" {
   account_id = var.account_id
   name       = var.name
-  location   = "EEUR"
+  location   = "eeur"
 
   lifecycle {
     prevent_destroy = true
