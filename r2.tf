@@ -10,4 +10,6 @@ module "r2_backups" {
   # Shorter than the backup container's BACKUP_KEEP_DAYS (7), which prunes
   # older dumps itself; a lock that outlasts it makes every prune fail.
   lock_days = 6
+
+  expire_days = 30
 }

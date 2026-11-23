@@ -21,6 +21,16 @@ variable "lock_days" {
   type        = number
 }
 
+variable "expire_days" {
+  description = "Age at which R2 deletes a backup itself, in case the uploader's own prune never reaches the bucket."
+  type        = number
+
+  validation {
+    condition     = var.expire_days > var.lock_days
+    error_message = "expire_days must be longer than lock_days, or R2 cannot delete what the lock still holds."
+  }
+}
+
 resource "cloudflare_r2_bucket" "backups" {
   account_id = var.account_id
   name       = var.name
@@ -41,6 +51,23 @@ resource "cloudflare_r2_bucket_lock" "backups" {
     condition = {
       type            = "Age"
       max_age_seconds = var.lock_days * 24 * 60 * 60
+    }
+  }]
+}
+
+resource "cloudflare_r2_bucket_lifecycle" "backups" {
+  account_id  = var.account_id
+  bucket_name = cloudflare_r2_bucket.backups.name
+
+  rules = [{
+    id         = "expire-old-backups"
+    enabled    = true
+    conditions = { prefix = "" }
+    delete_objects_transition = {
+      condition = {
+        type    = "Age"
+        max_age = var.expire_days * 24 * 60 * 60
+      }
     }
   }]
 }
