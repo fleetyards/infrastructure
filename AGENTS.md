@@ -81,6 +81,7 @@ terraform fmt
 ### Conventions
 
 - Resource naming: `fltyrd-{workspace}-{role}[-{index}]` (e.g., `fltyrd-live-web-1`)
+- Resources shared by all environments carry no workspace in their name and are created in `live` only (e.g., the `fltyrd-sc` game data bucket)
 - Private network: `10.0.0.0/16`, subnet `10.0.0.0/24`
 - Web server IPs start at `10.0.0.2`, accessory IPs follow sequentially
 - Server labels control firewall assignment (`ssh=yes`, `http=yes/no`, `env={workspace}`)
