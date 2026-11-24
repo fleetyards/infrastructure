@@ -14,6 +14,18 @@ override_module {
   }
 }
 
+override_module {
+  target = module.r2_sc_data
+  outputs = {
+    bucket   = "fltyrd-sc"
+    endpoint = "https://mock-account.r2.cloudflarestorage.com"
+    credentials = {
+      read  = { access_key_id = "mock-read-id", secret_access_key = "mock-read-secret" }
+      write = { access_key_id = "mock-write-id", secret_access_key = "mock-write-secret" }
+    }
+  }
+}
+
 variables {
   env_config = {
     default = {
@@ -26,12 +38,23 @@ variables {
       cors_origins            = ["https://example.com"]
       storage_origin          = "bunny"
       storage_routing_tier    = "Volume"
+      game_data_bucket        = true
     }
   }
 }
 
 run "create_servers" {
   command = plan
+
+  assert {
+    condition     = onepassword_item.r2_sc_data["read"].username == "mock-read-id" && onepassword_item.r2_sc_data["write"].username == "mock-write-id"
+    error_message = "Each game data item should carry the key of its own access level"
+  }
+
+  assert {
+    condition     = onepassword_item.r2_sc_data["read"].section[0].field[0].value == "fltyrd-sc"
+    error_message = "The game data items should name the bucket"
+  }
 
   assert {
     condition     = hcloud_server.web_server.*.name == ["fltyrd-default-web-1", "fltyrd-default-web-2"]
