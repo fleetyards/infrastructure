@@ -27,6 +27,7 @@ variable "env_config" {
     cors_origins            = list(string)
     storage_origin          = string
     storage_routing_tier    = optional(string, "Standard")
+    game_data_bucket        = optional(bool, false)
   }))
   default = {
     default = {
@@ -64,6 +65,8 @@ variable "env_config" {
       # The storage pull zone serves every uploaded image, so live uses the
       # cheaper Volume network for it.
       storage_routing_tier = "Volume"
+      # Shared with stage, so only one environment may create it.
+      game_data_bucket = true
     }
   }
 

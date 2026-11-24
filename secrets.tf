@@ -111,7 +111,7 @@ resource "onepassword_item" "r2_backups" {
 # One item per access level: the app and CI only read the game data, the tools
 # that export and push it need the write key.
 resource "onepassword_item" "r2_sc_data" {
-  for_each = terraform.workspace == "live" ? toset(["read", "write"]) : toset([])
+  for_each = local.env.game_data_bucket ? toset(["read", "write"]) : toset([])
 
   vault    = data.onepassword_vault.infra.uuid
   title    = "R2_SC_DATA_${upper(each.key)}"
