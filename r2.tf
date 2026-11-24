@@ -13,3 +13,12 @@ module "r2_backups" {
 
   expire_days = 30
 }
+
+# Stage and live load the game data from one bucket, so it belongs to live.
+module "r2_sc_data" {
+  source = "./modules/r2_bucket"
+  count  = terraform.workspace == "live" ? 1 : 0
+
+  account_id = data.onepassword_item.cloudflare.username
+  name       = "fltyrd-sc"
+}
