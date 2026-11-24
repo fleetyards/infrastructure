@@ -43,6 +43,11 @@ run "create_servers" {
   }
 
   assert {
+    condition     = length(onepassword_item.r2_sc_data) == 0
+    error_message = "The shared game data bucket should only exist in the live workspace"
+  }
+
+  assert {
     condition     = bunnynet_storage_zone.uploads.type == "S3"
     error_message = "The uploads storage zone needs S3 compatibility, which can only be set when the zone is created"
   }

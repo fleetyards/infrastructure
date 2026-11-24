@@ -28,7 +28,7 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 | `secrets.tf` | 1Password provider and data sources for secrets |
 | `storage.tf` | S3-compatible object storage buckets (storage + backups) |
 | `cdn.tf` | Bunny CDN pull zones and custom hostnames |
-| `r2.tf` | Cloudflare R2 backups bucket (off-provider copy of the database backups), via `modules/r2_backups` |
+| `r2.tf` | Cloudflare R2 backups bucket (off-provider copy of the database backups), via `modules/r2_backups`, and the game data bucket shared by stage and live (created in `live` only), via `modules/r2_bucket` |
 | `outputs.tf` | Server IPs and SSH config output |
 | `cloudinit/` | Cloud-init templates (base.yml, web.yml, accessories.yml) |
 | `scripts/setup` | Local bootstrap: tooling check, `.env` from 1Password, `terraform init` |
@@ -81,6 +81,7 @@ terraform fmt
 ### Conventions
 
 - Resource naming: `fltyrd-{workspace}-{role}[-{index}]` (e.g., `fltyrd-live-web-1`)
+- Resources shared by all environments carry no workspace in their name and are created in `live` only (e.g., the `fltyrd-sc` game data bucket)
 - Private network: `10.0.0.0/16`, subnet `10.0.0.0/24`
 - Web server IPs start at `10.0.0.2`, accessory IPs follow sequentially
 - Server labels control firewall assignment (`ssh=yes`, `http=yes/no`, `env={workspace}`)

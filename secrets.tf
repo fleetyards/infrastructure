@@ -107,3 +107,34 @@ resource "onepassword_item" "r2_backups" {
     }
   }
 }
+
+# One item per access level: the app and CI only read the game data, the tools
+# that export and push it need the write key.
+resource "onepassword_item" "r2_sc_data" {
+  for_each = local.env.game_data_bucket ? toset(["read", "write"]) : toset([])
+
+  vault    = data.onepassword_vault.infra.uuid
+  title    = "R2_SC_DATA_${upper(each.key)}"
+  category = "login"
+  username = module.r2_sc_data[0].credentials[each.key].access_key_id
+  password = module.r2_sc_data[0].credentials[each.key].secret_access_key
+
+  section {
+    label = "config"
+
+    field {
+      label = "bucket"
+      value = module.r2_sc_data[0].bucket
+    }
+
+    field {
+      label = "endpoint"
+      value = module.r2_sc_data[0].endpoint
+    }
+
+    field {
+      label = "region"
+      value = "auto"
+    }
+  }
+}
