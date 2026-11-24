@@ -24,6 +24,11 @@ data "onepassword_item" "bunny" {
   title = "BunnyCDN"
 }
 
+data "onepassword_item" "cloudflare" {
+  vault = data.onepassword_vault.infra.uuid
+  title = "Cloudflare"
+}
+
 data "onepassword_item" "appsignal" {
   vault = data.onepassword_vault.infra.uuid
   title = "APPSIGNAL"
@@ -72,6 +77,33 @@ resource "onepassword_item" "bunny_uploads" {
     field {
       label = "region"
       value = lower(bunnynet_storage_zone.uploads.region)
+    }
+  }
+}
+
+resource "onepassword_item" "r2_backups" {
+  vault    = data.onepassword_vault.infra.uuid
+  title    = "R2_BACKUPS_${upper(terraform.workspace)}"
+  category = "login"
+  username = module.r2_backups.access_key_id
+  password = module.r2_backups.secret_access_key
+
+  section {
+    label = "config"
+
+    field {
+      label = "bucket"
+      value = module.r2_backups.bucket
+    }
+
+    field {
+      label = "endpoint"
+      value = module.r2_backups.endpoint
+    }
+
+    field {
+      label = "region"
+      value = "auto"
     }
   }
 }

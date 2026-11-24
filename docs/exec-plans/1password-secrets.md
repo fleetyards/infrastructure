@@ -19,6 +19,7 @@ Vault: **Fleetyards**
 | `SSH Config` | Login | `username` (SSH key name), section fields for deploy keys |
 | `DNSimple` | API Credential | `credential` (token), `username` (account ID) |
 | `BunnyCDN` | API Credential | `credential` (API key) |
+| `Cloudflare` | API Credential | `credential` (API token, with Account → Workers R2 Storage → Edit and Account → Account API Tokens → Edit), `username` (account ID) |
 
 Deploy SSH public keys are stored as fields on the SSH Config item, selected by workspace (`deploy_public_key_live` / `deploy_public_key_stage`).
 

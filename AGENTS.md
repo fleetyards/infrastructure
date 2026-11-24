@@ -24,10 +24,11 @@ This repo provisions Hetzner Cloud servers (web + accessories), networking, fire
 | `variables.tf` | Input variables and per-environment config (`env_config`) |
 | `locals.tf` | Computed values (IP assignments) |
 | `versions.tf` | Terraform version constraints, backend config, provider versions |
-| `providers.tf` | Provider configuration (Hetzner, AWS/S3, Bunny CDN) |
+| `providers.tf` | Provider configuration (Hetzner, AWS/S3, Bunny CDN, Cloudflare) |
 | `secrets.tf` | 1Password provider and data sources for secrets |
 | `storage.tf` | S3-compatible object storage buckets (storage + backups) |
 | `cdn.tf` | Bunny CDN pull zones and custom hostnames |
+| `r2.tf` | Cloudflare R2 backups bucket (off-provider copy of the database backups), via `modules/r2_backups` |
 | `outputs.tf` | Server IPs and SSH config output |
 | `cloudinit/` | Cloud-init templates (base.yml, web.yml, accessories.yml) |
 | `scripts/setup` | Local bootstrap: tooling check, `.env` from 1Password, `terraform init` |
