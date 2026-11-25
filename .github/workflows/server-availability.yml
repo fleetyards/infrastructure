@@ -1,0 +1,74 @@
+name: Server availability
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: server-availability
+  cancel-in-progress: false
+
+env:
+  SERVER_TYPE: cx43
+  LOCATION: nbg1
+
+jobs:
+  check:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Availability is the same for every project, so this uses the stage
+      # token rather than the live one.
+      - name: Load Hetzner token
+        id: secrets
+        uses: 1password/load-secrets-action@v5
+        with:
+          export-env: false
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          HCLOUD_TOKEN: op://Fleetyards/HCLOUD_STAGE/credential
+
+      - name: Check availability
+        id: check
+        env:
+          HCLOUD_TOKEN: ${{ steps.secrets.outputs.HCLOUD_TOKEN }}
+        run: |
+          set -euo pipefail
+          available=$(curl -fsS --retry 3 --max-time 20 \
+            -H "Authorization: Bearer $HCLOUD_TOKEN" \
+            "https://api.hetzner.cloud/v1/server_types?name=$SERVER_TYPE" |
+            jq -r --arg location "$LOCATION" \
+              '.server_types[0].locations[] | select(.name == $location) | .available')
+          case "$available" in
+            true | false) ;;
+            *)
+              echo "::error::Unexpected availability '$available' for $SERVER_TYPE in $LOCATION"
+              exit 1
+              ;;
+          esac
+          echo "$SERVER_TYPE in $LOCATION available: $available"
+          echo "available=$available" >> "$GITHUB_OUTPUT"
+
+      - name: Update the alert issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          AVAILABLE: ${{ steps.check.outputs.available }}
+        run: |
+          set -euo pipefail
+          title="$SERVER_TYPE is available in $LOCATION"
+          issue=$(gh issue list --state open --author "app/github-actions" --limit 100 --json number,title |
+            jq -r --arg title "$title" 'map(select(.title == $title)) | .[0].number // empty')
+
+          if [ "$AVAILABLE" = "true" ] && [ -z "$issue" ]; then
+            gh issue create --title "$title" --assignee mortik \
+              --body "Hetzner reports \`$SERVER_TYPE\` as available in \`$LOCATION\`. Resize one server per apply, following MAINTENANCE.md. This issue closes itself if it sells out again."
+          elif [ "$AVAILABLE" = "false" ] && [ -n "$issue" ]; then
+            gh issue close "$issue" --comment "\`$SERVER_TYPE\` is no longer available in \`$LOCATION\`."
+          fi
